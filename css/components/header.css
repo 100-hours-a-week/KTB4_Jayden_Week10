@@ -12,6 +12,7 @@
 .user-menu__trigger:focus-visible { outline: 3px solid var(--color-primary-hover); outline-offset: 3px; }
 .user-menu__fallback { font-size: var(--font-control); font-weight: 700; }
 .user-menu__list { position: absolute; z-index: 5; top: calc(100% + var(--space-2)); right: 0; display: grid; width: 7.25rem; padding: var(--space-1) 0; background: var(--color-menu); box-shadow: var(--shadow-card); }
+.user-menu__list[hidden] { display: none; }
 .user-menu__list a { padding: 0.7rem var(--space-3); font-size: var(--font-helper); text-align: center; }
 .user-menu__list a:hover,
 .user-menu__list a:focus-visible,
