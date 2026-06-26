@@ -1,0 +1,7 @@
+{
+  "name": "any-talk-project",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  }
+}

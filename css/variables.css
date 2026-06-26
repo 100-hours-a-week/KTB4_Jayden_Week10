@@ -1,0 +1,68 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css");
+
+:root {
+  /* Color */
+  --color-page: #f7f7f9;
+  --color-surface: #ffffff;
+  --color-text: #171719;
+  --color-subtle: #62626a;
+  --color-line: #dedee3;
+  --color-primary: #aca0eb;
+  --color-primary-hover: #7f6aee;
+  --color-danger: #d92d20;
+  --color-skeleton: #ececf0;
+  --color-menu: #d9d9d9;
+  --color-menu-hover: #e9e9e9;
+  --color-avatar-backdrop: #343434;
+  --color-button-dark: #242424;
+  --color-neutral-200: #d9d9d9;
+  --color-field-filled: #fcfbff;
+  --color-reply-surface: #f0eef8;
+  --color-placeholder: #8f8f95;
+  --color-on-primary: #ffffff;
+  --color-disabled-text: #5e519c;
+  --color-disabled-surface: #d9d3f5;
+
+  /* Typography */
+  --font-family: "Pretendard", "Pretendard Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-logo: 2.25rem;
+  --font-logo-tablet: 2rem;
+  --font-logo-mobile: 1.65rem;
+  --font-page-title: 1.5rem;
+  --font-content-title: 1.5rem;
+  --font-section-title: 1.25rem;
+  --font-body: 1rem;
+  --font-label: 1rem;
+  --font-control: 0.875rem;
+  --font-helper: 0.8125rem;
+  --font-icon-back: 3rem;
+  --font-icon-upload: 2.8rem;
+  --font-icon-gallery: 2rem;
+  --font-xxl: 2.25rem;
+  --font-xl: 1.5rem;
+  --font-lg: 1.25rem;
+  --font-md: 1rem;
+  --font-sm: 0.875rem;
+  --font-xs: 0.8125rem;
+
+  /* Spacing & shape */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --shadow-card: 0 0.25rem 0.75rem rgb(23 23 25 / 7%);
+  --header-width: 56rem;
+  --form-width: 23.25rem;
+  --content-width: 38rem;
+  --editor-width: 44rem;
+  --button-form-width: 100%;
+  --button-editor-width: 25rem;
+  --size-touch-target: 2.75rem;
+}

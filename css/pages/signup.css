@@ -1,0 +1,78 @@
+/* --------------------------------------------------------------------------
+   Signup page layout
+   -------------------------------------------------------------------------- */
+.signup-page { min-height: 100vh; min-height: 100dvh; }
+.signup-header { min-height: 6.4rem; border-bottom: 1px solid var(--color-text); }
+.signup-header__inner { position: relative; display: grid; place-items: center; width: min(100% - 2rem, var(--header-width)); min-height: inherit; margin: 0 auto; }
+.signup-logo { font-size: var(--font-logo); font-weight: 400; letter-spacing: -0.09em; }
+.back-link { position: absolute; left: 0; display: grid; place-items: center; width: 3rem; height: 3rem; font-size: var(--font-icon-back); font-weight: 300; line-height: 0.7; }
+.signup-main { min-height: calc(100vh - 6.4rem); padding: clamp(8rem, 16vh, 10rem) var(--space-4) var(--space-8); }
+.signup-section { width: min(100%, var(--form-width)); margin: 0 auto; }
+.signup-title { margin-bottom: var(--space-2); font-size: var(--font-page-title); line-height: 1.2; text-align: center; letter-spacing: -0.06em; }
+
+/* --------------------------------------------------------------------------
+   Profile image component
+   -------------------------------------------------------------------------- */
+.profile-field { position: relative; display: grid; justify-items: start; min-height: 13rem; padding-bottom: 2.5rem; }
+.profile-field__label { font-size: var(--font-label); font-weight: 700; }
+.profile-upload { position: absolute; bottom: 2.5rem; left: 50%; display: grid; place-items: center; width: 9.25rem; aspect-ratio: 1; overflow: hidden; color: var(--color-text); background: var(--color-neutral-200); border-radius: 50%; cursor: pointer; transform: translateX(-50%); }
+.profile-upload:focus-within { outline: 3px solid var(--color-primary-hover); outline-offset: 3px; }
+.profile-upload__preview { display: none; width: 100%; height: 100%; object-fit: cover; }
+.profile-upload.has-image .profile-upload__preview { display: block; }
+.profile-upload.has-image .profile-upload__plus { display: none; }
+.profile-upload__plus { font-size: var(--font-icon-upload); font-weight: 200; line-height: 1; }
+.profile-upload__input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+
+/* --------------------------------------------------------------------------
+   Form fields and fixed helper text area
+   -------------------------------------------------------------------------- */
+.signup-form { display: grid; gap: 0; }
+.signup-form__fields { display: grid; }
+.signup-form .form-field { position: relative; gap: var(--space-2); min-height: 6.9rem; padding-bottom: 2.5rem; }
+.signup-form .form-field label { font-size: var(--font-label); line-height: 1.2; }
+.signup-input { min-height: 2.25rem; padding: 0 var(--space-3); color: var(--color-text); border-color: var(--color-text); border-radius: var(--radius-sm); font-size: var(--font-control); transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease; }
+.signup-input::placeholder { color: var(--color-subtle); }
+.form-field.is-focused .signup-input,
+.signup-input:focus { border-color: var(--color-primary-hover); box-shadow: 0 0 0 0.2rem rgb(127 106 238 / 16%); }
+.form-field.is-filled .signup-input,
+.signup-input:not(:placeholder-shown) { background: var(--color-field-filled); }
+.form-field.is-valid .signup-input { border-color: var(--color-primary-hover); }
+.form-field.is-invalid .signup-input { border-color: var(--color-danger); box-shadow: 0 0 0 0.2rem rgb(217 45 32 / 12%); }
+.field-helper { position: absolute; right: 0; bottom: 0; left: 0; min-height: 2.35rem; margin: 0; color: var(--color-danger); font-size: var(--font-helper); line-height: 1.35; }
+.field-helper__message { display: none; margin: 0; }
+.form-field.is-invalid.is-required .field-helper__message--required,
+.form-field.is-invalid.is-format .field-helper__message--format,
+.form-field.is-invalid.is-mismatch .field-helper__message--mismatch,
+.form-field.is-invalid.is-whitespace .field-helper__message--whitespace,
+.form-field.is-invalid.is-max .field-helper__message--max,
+.form-field.is-invalid.is-duplicate .field-helper__message--duplicate { display: block; }
+.form-field.is-valid .field-helper__message--success { display: block; color: var(--color-primary-hover); }
+.profile-field.is-invalid .field-helper--required { display: block; }
+.profile-field:not(.is-invalid) .field-helper--required { display: none; }
+
+/* --------------------------------------------------------------------------
+   Submission states and navigation link
+   -------------------------------------------------------------------------- */
+.signup-button { position: relative; width: var(--button-form-width); min-height: 2.25rem; margin-top: var(--space-1); border-radius: var(--radius-sm); font-size: var(--font-control); }
+.signup-form.is-valid .signup-button:not(:disabled) { background: var(--color-primary-hover); }
+.signup-button.is-disabled,
+.signup-button:disabled { color: var(--color-disabled-text); background: var(--color-disabled-surface); cursor: not-allowed; opacity: 1; }
+.signup-button.is-disabled:hover,
+.signup-button:disabled:hover { background: var(--color-disabled-surface); }
+.signup-button__spinner { display: none; width: 1rem; height: 1rem; border: 2px solid rgb(255 255 255 / 45%); border-top-color: #fff; border-radius: 50%; animation: signup-spin 700ms linear infinite; }
+.signup-form.is-loading .signup-button { pointer-events: none; }
+.signup-form.is-loading .signup-button__label { display: none; }
+.signup-form.is-loading .signup-button__spinner { display: block; }
+.signup-form.is-success .signup-button { color: var(--color-on-primary); background: var(--color-primary-hover); }
+.signup-form.is-success .signup-button__label { font-size: 0; }
+.signup-form.is-success .signup-button__label::after { content: "회원 가입 성공"; font-size: var(--font-control); }
+.signup-form__error { display: none; margin: var(--space-2) 0 0; color: var(--color-danger); font-size: var(--font-helper); text-align: center; }
+.signup-form.is-error .signup-form__error { display: block; }
+.login-link { display: block; width: fit-content; margin: var(--space-2) auto 0; padding: var(--space-1); font-size: var(--font-control); text-decoration: underline; text-underline-offset: 0.18em; }
+@keyframes signup-spin { to { transform: rotate(360deg); } }
+
+/* --------------------------------------------------------------------------
+   Responsive breakpoints
+   -------------------------------------------------------------------------- */
+@media (max-width: 48rem) { .signup-header { min-height: 6.1rem; } .signup-main { min-height: calc(100vh - 6.1rem); padding-top: clamp(6rem, 13vh, 8rem); } }
+@media (max-width: 30rem) { .signup-header { min-height: 5.75rem; } .signup-header__inner { width: calc(100% - 2rem); } .signup-logo { font-size: var(--font-logo-tablet); } .back-link { width: var(--size-touch-target); } .signup-main { min-height: calc(100dvh - 5.75rem); padding-top: clamp(5rem, 12vh, 7rem); } .signup-section { width: min(100%, var(--form-width)); } .field-helper { min-block-size: calc(1.35em * 3); } }

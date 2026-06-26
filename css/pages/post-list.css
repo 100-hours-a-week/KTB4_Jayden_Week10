@@ -1,0 +1,4 @@
+.article-intro { display: grid; justify-items: end; margin-bottom: var(--space-4); }
+.article-intro h1 { justify-self: center; margin: 0 0 -0.25rem; font-size: var(--font-page-title); font-weight: 400; line-height: 1.25; text-align: center; letter-spacing: -0.06em; }
+.article-intro strong { font-weight: 700; }
+@media (max-width: 30rem) { .article-intro { margin-bottom: var(--space-3); } .article-intro h1 { font-size: var(--font-section-title); } .button--primary { min-width: 8rem; } }

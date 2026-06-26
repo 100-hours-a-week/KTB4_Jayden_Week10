@@ -1,0 +1,6 @@
+.modal { width: min(calc(100% - 2rem), 24rem); padding: 0; border: 0; border-radius: var(--radius-lg); box-shadow: 0 1rem 3rem rgb(0 0 0 / 20%); }
+.modal::backdrop { background: rgb(0 0 0 / 45%); }
+.modal__content { padding: var(--space-6); }
+.modal__content h2, .modal__content p { margin-top: 0; }
+.modal__actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-6); }
+.modal.is-active { display: block; }

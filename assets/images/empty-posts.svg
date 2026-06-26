@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="120" viewBox="0 0 160 120" role="img" aria-label="빈 게시글">
+  <rect x="24" y="22" width="112" height="76" rx="14" fill="#EEEAFB"/>
+  <path d="M54 50h52M54 64h38" stroke="#7F6AEE" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="116" cy="83" r="14" fill="#ACA0EB"/>
+</svg>

@@ -1,0 +1,57 @@
+/* --------------------------------------------------------------------------
+   Page layout and header
+   -------------------------------------------------------------------------- */
+.post-edit-page { min-height: 100vh; }
+.post-edit-back { position: absolute; left: 0; display: grid; place-items: center; width: 3rem; height: 3rem; font-size: var(--font-icon-back); font-weight: 300; line-height: 0.7; }
+.post-edit-main { min-height: calc(100vh - 6.625rem); padding: clamp(2rem, 4vh, 3.5rem) var(--space-4) 5rem; }
+.post-edit-section { width: min(100%, var(--editor-width)); margin: 0 auto; }
+.post-edit-section > h1 { margin: 0 0 clamp(3rem, 6vh, 5rem); font-size: var(--font-page-title); text-align: center; letter-spacing: -0.06em; }
+
+/* --------------------------------------------------------------------------
+   Title and content fields
+   -------------------------------------------------------------------------- */
+.post-edit-form { display: grid; }
+.post-edit-form__fields { display: grid; gap: var(--space-5); }
+.post-edit-field { position: relative; display: grid; gap: var(--space-3); padding-bottom: 1.85rem; border-bottom: 1px solid var(--color-line); }
+.post-edit-field label, .post-edit-images h2 { font-size: var(--font-label); line-height: 1.2; }
+.post-edit-field input, .post-edit-field textarea { width: 100%; padding: 0; color: var(--color-text); background: transparent; border: 0; border-radius: 0; font: inherit; outline: 0; }
+.post-edit-field input { min-height: 3rem; font-size: var(--font-content-title); font-weight: 700; }
+.post-edit-field textarea { min-height: 18rem; font-size: var(--font-body); line-height: 1.62; resize: vertical; }
+.post-edit-field.is-focused { border-bottom-color: var(--color-primary-hover); box-shadow: 0 0.2rem 0.5rem rgb(127 106 238 / 10%); }
+.post-edit-field.is-invalid { border-bottom-color: var(--color-danger); }
+.post-edit-field.is-valid { border-bottom-color: var(--color-primary-hover); }
+.post-edit-helper { position: absolute; bottom: 0.25rem; left: 0; display: none; margin: 0; color: var(--color-danger); font-size: var(--font-helper); }
+.post-edit-field.is-invalid .post-edit-helper { display: block; }
+
+/* --------------------------------------------------------------------------
+   Existing and newly selected images
+   -------------------------------------------------------------------------- */
+.post-edit-images { display: grid; gap: var(--space-3); padding: var(--space-5) 0 var(--space-6); border-bottom: 1px solid var(--color-line); }
+.post-edit-images h2 { margin: 0; }
+.post-edit-image-control { display: flex; align-items: center; gap: var(--space-3); }
+.post-edit-image-control label { display: inline-flex; align-items: center; min-height: 2.2rem; padding: 0 var(--space-3); background: var(--color-surface); border: 1px solid var(--color-text); border-radius: var(--radius-sm); cursor: pointer; }
+.post-edit-image-control input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); }
+.post-edit-images ul { display: flex; flex-wrap: wrap; gap: var(--space-3); padding: 0; margin: 0; list-style: none; }
+.post-edit-images li { display: grid; gap: var(--space-1); width: 5.5rem; font-size: var(--font-helper); overflow-wrap: anywhere; }
+.post-edit-images li span, .post-edit-images li img { width: 5.5rem; height: 5.5rem; object-fit: cover; background: var(--color-neutral-200); border-radius: var(--radius-sm); }
+.post-edit-form.has-no-image [data-image-list] { display: none; }
+
+/* --------------------------------------------------------------------------
+   Submit and request states
+   -------------------------------------------------------------------------- */
+.post-edit-button { position: relative; width: min(100%, var(--button-editor-width)); min-height: 3rem; margin: var(--space-6) auto 0; border-radius: var(--radius-sm); font-size: var(--font-body); }
+.post-edit-form.is-valid .post-edit-button:not(:disabled) { background: var(--color-primary-hover); }
+.post-edit-button.is-disabled { color: var(--color-disabled-text); background: var(--color-disabled-surface); cursor: not-allowed; opacity: 1; }
+.post-edit-button:disabled { pointer-events: none; }
+.post-edit-spinner { display: none; width: 1rem; height: 1rem; border: 2px solid rgb(255 255 255 / 45%); border-top-color: #fff; border-radius: 50%; animation: post-edit-spin 700ms linear infinite; }
+.post-edit-form.is-loading .post-edit-button [data-submit-label] { display: none; }
+.post-edit-form.is-loading .post-edit-spinner { display: block; }
+.post-edit-error, .post-edit-success { margin: var(--space-2) 0 0; font-size: var(--font-helper); text-align: center; }
+.post-edit-error { color: var(--color-danger); }.post-edit-success { color: var(--color-primary-hover); }
+@keyframes post-edit-spin { to { transform: rotate(360deg); } }
+
+/* --------------------------------------------------------------------------
+   Responsive breakpoints
+   -------------------------------------------------------------------------- */
+@media (max-width: 48rem) { .post-edit-main { min-height: calc(100vh - 5.5rem); padding-top: var(--space-6); } }
+@media (max-width: 30rem) { .post-edit-main { min-height: calc(100vh - 5.5rem); padding-top: var(--space-5); } .post-edit-section { width: min(100%, var(--form-width)); } .post-edit-back { width: 2.75rem; } .post-edit-section > h1 { margin-bottom: var(--space-8); } .post-edit-field input { font-size: var(--font-section-title); } .post-edit-field textarea { min-height: 15rem; } .post-edit-button { width: 100%; min-height: 2.75rem; } }
