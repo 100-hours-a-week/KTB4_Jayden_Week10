@@ -19,7 +19,16 @@
       <nav class="site-header__inner" aria-label="주요 메뉴">
         <a class="detail-back" href="./list.html" aria-label="게시글 목록으로 돌아가기"><span aria-hidden="true">‹</span></a>
         <a class="site-logo" href="../../index.html" aria-label="아무 말 대잔치 홈">아무 말 대잔치</a>
-        <a class="profile-link" href="../user/profile-edit.html" aria-label="회원정보수정"><img src="../../assets/images/default-profile.svg" alt="" /></a>
+        <div class="user-menu" data-account-menu>
+          <button class="user-menu__trigger" type="button" aria-label="프로필 메뉴 열기" aria-expanded="false" aria-controls="account-menu-list" data-account-menu-trigger>
+            <img src="../../assets/images/default-profile.svg" alt="" />
+          </button>
+          <div id="account-menu-list" class="user-menu__list" data-account-menu-list hidden>
+            <a href="../user/profile-edit.html">회원정보수정</a>
+            <a href="../user/password-edit.html">비밀번호수정</a>
+            <a href="../auth/login.html">로그아웃</a>
+          </div>
+        </div>
       </nav>
     </header>
 
@@ -87,6 +96,7 @@
 
     <dialog class="modal detail-modal" id="post-delete-modal" aria-labelledby="post-delete-title" aria-describedby="post-delete-description"><form class="modal__content" method="dialog"><h2 id="post-delete-title">게시글을 삭제하시겠습니까?</h2><p id="post-delete-description">삭제한 내용은 복구 할 수 없습니다.</p><div class="modal__actions"><button class="button button--secondary" value="cancel">취소</button><button class="button button--primary" value="confirm" data-post-delete-confirm>확인</button></div></form></dialog>
     <dialog class="modal detail-modal" id="comment-delete-modal" aria-labelledby="comment-delete-title" aria-describedby="comment-delete-description"><form class="modal__content" method="dialog"><h2 id="comment-delete-title">댓글을 삭제하시겠습니까?</h2><p id="comment-delete-description">삭제한 내용은 복구 할 수 없습니다.</p><div class="modal__actions"><button class="button button--secondary" value="cancel">취소</button><button class="button button--primary" value="confirm" data-comment-delete-confirm>확인</button></div></form></dialog>
+    <script type="module" src="../../js/common/account-menu.js"></script>
     <script type="module" src="../../js/pages/posts/post-detail.js"></script>
   </body>
 </html>
