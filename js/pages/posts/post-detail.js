@@ -36,7 +36,8 @@ let editingComment = null;
 let pendingDeleteComment = null;
 
 let isFetching = false;
-let hasNext = false;
+let hasNext = true;
+let isFirstLoad = true;
 
 let lastParentCommentId = null;
 let lastCommentId = null;
@@ -182,7 +183,6 @@ commentForm.addEventListener('submit', async (event) => {
     updateCommentForm();
 });
 
-
 function updateCommentForm() {
     const hasText = commentInput.value.trim() !== '';
 
@@ -190,7 +190,6 @@ function updateCommentForm() {
     commentSubmit.disabled = !hasText;
     commentSubmit.classList.toggle('is-disabled', !hasText);
 }
-
 
 
 const createComment = (comment, { reply = false } = {}) => {
@@ -226,11 +225,43 @@ const createComment = (comment, { reply = false } = {}) => {
     return item;
 };
 
-async function fetchComments({ reset = false } = {}) {}
+async function fetchComments({ reset = false } = {}) {
+    if (!hasNext) return;
+
+    isFetching = true;
+    loadingMore.hidden = false;
+
+
+    const lastCommentQuery = lastCommentId == null ? '' : `&lastCommentId=${lastCommentId}`;
+    const lastParentCommentQuery = lastParentCommentId == null ? '' : `&lastParentCommentId=${lastParentCommentId}`;
+    const response = await fetch(`http://localhost:8080/articles/${articleId}/comments?pageSize=${commentPageSize}${lastCommentQuery}${lastParentCommentQuery}`);
+    const comments = await response.json();
+    const commentArray = Array.isArray(comments.data) ? comments.data : [];
+
+    if (commentArray.length === 0 && isFirstLoad) {
+        setState('is-empty');
+        return;
+    }
+    if (commentArray.length === 0 && isFirstLoad) {
+        setState('is-empty');
+        return;
+    }
+
+    commentList.append(...commentArray.map(comment => createComment(comment, {reply: Boolean(comment.parentCommentId)})));
+
+    lastCommentId = commentArray[commentArray.length - 1].commentId;
+    lastParentCommentId = commentArray[commentArray.length - 1].parentCommentId;
+    setState(null);
+
+    isFetching = false;
+    isFirstLoad = false;
+    hasNext = commentArray.length === commentPageSize;
+    commentsSentinel.hidden = !hasNext;
+    loadingMore.hidden = true;
+}
 
 
 commentInput.addEventListener('input', () => { 
-    formError.hidden = true; 
     updateCommentForm(); 
 });
 
@@ -256,3 +287,4 @@ window.addEventListener('scroll', () => {
 
 updateCommentForm();
 fetchArticle();
+fetchComments();
