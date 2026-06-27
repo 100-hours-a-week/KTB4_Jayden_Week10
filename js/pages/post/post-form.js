@@ -37,17 +37,18 @@ function updateFormState() {
 }
 
 async function createArticle(articleData) {
-    const userId = document.body.dataset.userId;
+    const userId = document.body.dataset.userId || 6352;
 
     if (!userId) {
         await new Promise((resolve) => window.setTimeout(resolve, 500));
         return { articleId : 6352 }
     }
 
-    const response = await fetch('/articles', {
+    const formData = new FormData();
+    const response = await fetch('http://localhost:8080/articles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({userId, ...articleData})
+        body: JSON.stringify( {userId, ...articleData} )
     });
 
     if (!response.ok) throw new Error("게시글 작성 실패");
@@ -77,6 +78,8 @@ imageInput.addEventListener('change', (e) => {
         item.append(image);
         imagePreviewList.append(item);
     });
+
+
 });
 
 postCreateForm.addEventListener('submit', async (event) => {
@@ -84,7 +87,8 @@ postCreateForm.addEventListener('submit', async (event) => {
 
     const title = titleInput.value.trim();
     const content = contentInput.value.trim();
-    const images = imageInput.files;
+    const contentImages = Array.from(imageInput.files || [])
+            .map(file => file.name);
 
     if (!title) {
         formError.textContent = '제목을 입력해주세요.';
@@ -94,12 +98,12 @@ postCreateForm.addEventListener('submit', async (event) => {
     submitButton.disabled = true;
     submitButton.setAttribute('aria-disabled', 'true');
     
-    const articleData = {title, content, images}
+    const articleData = {title, content, contentImages}
     const result = await createArticle(articleData);
 
     updateFormState();
 
-    const articleId = result.articleId || 6352;
+    const articleId = result.data.articleId;
     window.setTimeout(() => {
         window.location.assign(`./detail.html?id=${encodeURIComponent(articleId)}`);
     }, 500);

@@ -1,6 +1,6 @@
 const articleView = document.querySelector('[data-article-view]');
 
-const articleId = document.body.dataset.articleId || new URLSearchParams(window.location.search).get('id') || '1';
+const articleId = new URLSearchParams(window.location.search).get('id');
 const apiBase = document.body.dataset.apiBase;
 
 const title = document.querySelector('[data-article-title]');
@@ -12,6 +12,7 @@ const viewCount = document.querySelector('[data-view-count]');
 const commentCount = document.querySelector('[data-comment-count]');
 
 const gallery = document.querySelector('[data-gallery]');
+const galleryArrows = document.querySelectorAll('.gallery-arrow');
 let gallerySlides = [...document.querySelectorAll('[data-gallery-slide]')];
 
 const postDeleteModal = document.querySelector('#post-delete-modal');
@@ -44,6 +45,8 @@ let commentPageSize = 10;
 
 const fallbackImageSrc = document.querySelector('[data-gallery-image]')?.dataset.fallbackSrc || '../../assets/images/empty-posts.svg';
 
+const userId = document.body.dataset.userId || 6352;
+
 
 
 function formatCount(value) {
@@ -51,18 +54,85 @@ function formatCount(value) {
     return count >= 1000 ? `${Math.floor(count / 1000)}k` : String(count);
 }
 
-function showGallerySlide(index) {}
+function showGallerySlide(index) {
+    if (!gallerySlides.length) return;
+    activeSlide = (index + gallerySlides.length) % gallerySlides.length;
+    gallerySlides.forEach((slide, slideIndex) => slide.classList.toggle('is-active', slideIndex === activeSlide));
+}
 
-async function loadArticle(params) {}
+
+function createGallerySlide(src, index) {
+    const figure = document.createElement('figure');
+    const image = document.createElement('img');
+    image.className = 'gallery-image';
+    image.src = src;
+    image.alt = `게시글 이미지 ${index + 1}`;
+    image.dataset.galleyImage = '';
+    image.dataset.fallbackSrc = fallbackImageSrc;
+
+    figure.className = `gallery-slide${index === 0 ? ' is-active' : ''}`;
+    figure.dataset.gallerySlide = '';
+    figure.append(image);
+    return figure;
+}
+
+
+function renderGallery(images = []) {
+    gallery.querySelectorAll('[data-gallery-slide]').forEach( slide => slide.remove());
+
+    gallery.hidden = images.length === 0;
+    gallery.classList.toggle('has-no-arrow', images.length <= 1);
+
+    const nextImages = images.filter(Boolean);
+    console.log(nextImages.length)
+    if (!nextImages.length) {
+        gallerySlides = [];
+        document.querySelector('[data-gallery-previous]').hidden = true;
+        document.querySelector('[data-gallery-next]').hidden = true;
+        return;
+    }
+    document.querySelector('[data-gallery-next]').before(...nextImages.map(createGallerySlide));
+    
+    gallerySlides = [...document.querySelectorAll('[data-gallery-slide]')];
+    activeSlide = 0;
+
+    showGallerySlide(0);
+    const hasMultipleImages = gallerySlides.length > 1;
+    document.querySelector('[data-gallery-previous]').hidden = !hasMultipleImages;
+    document.querySelector('[data-gallery-next]').hidden = !hasMultipleImages;
+}
+
+
+async function fetchArticle() {
+    const response = await fetch(`http://localhost:8080/articles/${articleId}`);
+    const payload = await response.json();
+    const article = payload.data;
+
+    title.textContent = article.title;
+    body.textContent = article.content;
+    likeCount.dataset.count = String(article.articleLikeCount);
+    likeCount.textContent = formatCount(likeCount.dataset.count);
+    viewCount.dataset.count = String(article.articleViewCount);
+    viewCount.textContent = formatCount(viewCount.dataset.count);
+    commentCount.dataset.count = String(article.commentCount);
+    commentCount.textContent = formatCount(commentCount.dataset.count);
+    renderGallery(Array.isArray(article.contentImages) ? article.contentImages : []);
+}
 
 document.querySelector('[data-gallery-previous]').addEventListener('click', () => showGallerySlide(activeSlide - 1));
 document.querySelector('[data-gallery-next]').addEventListener('click', () => showGallerySlide(activeSlide + 1));
 
 
-likeButton.addEventListener('click', () => {});
+likeButton.addEventListener('click', () => {
+    const likeOn = likeButton.getAttribute('aria-pressed') === 'true';
 
-commentForm.addEventListener('submit', (event) => {});
+    const response = await fetch(`http://localhost:8080/likes/articles/${articleId}/users/${userId}`, {
+        method: 'POST'
+    });
 
+    if (!response.ok) throw new Error("게시글 작성 실패");
+    return response.json();
+});
 
 
 document.querySelector('[data-post-delete-open]').addEventListener('click', () => { 
@@ -102,7 +172,7 @@ postDeleteModal.addEventListener('close', () => modal.classList.remove('is-activ
 
 
 
-
+commentForm.addEventListener('submit', (event) => {});
 
 
 const updateCommentForm = () => {};
@@ -173,4 +243,4 @@ window.addEventListener('scroll', () => {
 
 
 updateCommentForm();
-loadArticle();
+fetchArticle();
