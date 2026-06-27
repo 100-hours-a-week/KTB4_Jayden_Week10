@@ -84,7 +84,7 @@ function renderGallery(images = []) {
     gallery.classList.toggle('has-no-arrow', images.length <= 1);
 
     const nextImages = images.filter(Boolean);
-    console.log(nextImages.length)
+    
     if (!nextImages.length) {
         gallerySlides = [];
         document.querySelector('[data-gallery-previous]').hidden = true;
@@ -122,16 +122,19 @@ async function fetchArticle() {
 document.querySelector('[data-gallery-previous]').addEventListener('click', () => showGallerySlide(activeSlide - 1));
 document.querySelector('[data-gallery-next]').addEventListener('click', () => showGallerySlide(activeSlide + 1));
 
-
-likeButton.addEventListener('click', () => {
-    const likeOn = likeButton.getAttribute('aria-pressed') === 'true';
-
-    const response = await fetch(`http://localhost:8080/likes/articles/${articleId}/users/${userId}`, {
+const like = async () => {
+fetch(`http://localhost:8080/likes/articles/${articleId}/users/${userId}`, {
         method: 'POST'
     });
+}
+
+likeButton.addEventListener('click', async () => {
+    const likeOn = likeButton.getAttribute('aria-pressed') === 'true';
+
+    const response = await like();
 
     if (!response.ok) throw new Error("게시글 작성 실패");
-    return response.json();
+    const result = response.json();
 });
 
 
