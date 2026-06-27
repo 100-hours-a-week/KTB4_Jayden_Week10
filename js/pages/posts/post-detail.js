@@ -48,6 +48,9 @@ const fallbackImageSrc = document.querySelector('[data-gallery-image]')?.dataset
 const userId = document.body.dataset.userId || 6352;
 
 
+/**
+ * 게시글 상세 조회
+ */
 
 function formatCount(value) {
     const count = Number(value);
@@ -122,19 +125,22 @@ async function fetchArticle() {
 document.querySelector('[data-gallery-previous]').addEventListener('click', () => showGallerySlide(activeSlide - 1));
 document.querySelector('[data-gallery-next]').addEventListener('click', () => showGallerySlide(activeSlide + 1));
 
-const like = async () => {
-fetch(`http://localhost:8080/likes/articles/${articleId}/users/${userId}`, {
-        method: 'POST'
-    });
-}
 
 likeButton.addEventListener('click', async () => {
     const likeOn = likeButton.getAttribute('aria-pressed') === 'true';
+    const currentCount = Number(likeCount.dataset.count);
+    const next = Math.max(0, currentCount + (likeOn ? -1 : 1));
 
-    const response = await like();
+    const response = likeOn ? await fetch(`http://localhost:8080/likes/articles/${articleId}/users/${userId}`, {
+        method: 'DELETE'
+    }) : 
+        await fetch(`http://localhost:8080/likes/articles/${articleId}/users/${userId}`, {
+            method: 'POST'
+        });
 
-    if (!response.ok) throw new Error("게시글 작성 실패");
-    const result = response.json();
+    likeButton.setAttribute('aria-pressed', String(!likeOn));
+    likeCount.dataset.count = String(next);
+    likeCount.textContent = formatCount(next);
 });
 
 
@@ -142,45 +148,48 @@ document.querySelector('[data-post-delete-open]').addEventListener('click', () =
     postDeleteModal.showModal(); 
     postDeleteModal.classList.add('is-active'); 
 });
-document.querySelector('[data-post-delete-confirm]').addEventListener('click', () => {
+document.querySelector('[data-post-delete-confirm]').addEventListener('click', async () => {
+
+    const response = await fetch(`http://localhost:8080/articles/${articleId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({userId})
+    });
     window.location.assign('./list.html');
 });
-postDeleteModal.addEventListener('close', () => modal.classList.remove('is-active'));
+
+postDeleteModal.addEventListener('close', () => postDeleteModal.classList.remove('is-active'));
 
 
+/**
+ * 댓글
+ */
+
+commentForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const commentText = commentInput.value.trim();
+    const parentCommentId = null;
+    
+    if (!commentText) return; 
+
+    const response = await fetch(`http://localhost:8080/articles/${articleId}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({userId, commentText, parentCommentId})
+    });
+
+    updateCommentForm();
+});
 
 
+function updateCommentForm() {
+    const hasText = commentInput.value.trim() !== '';
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-commentForm.addEventListener('submit', (event) => {});
-
-
-const updateCommentForm = () => {};
-
-
+    commentForm.classList.toggle('comment-form-valid', hasText);
+    commentSubmit.disabled = !hasText;
+    commentSubmit.classList.toggle('is-disabled', !hasText);
+}
 
 
 
