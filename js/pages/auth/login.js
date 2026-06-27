@@ -7,7 +7,7 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9])\S{8,20}$/;
 const touched = { email: false, password: false };
 
-function updateLoginButtonState() {
+function saveButtonState() {
     const email = emailInput.value.trim()
     const password = passwordInput.value.trim();
 
@@ -19,8 +19,8 @@ function updateLoginButtonState() {
     // loginButton.classList.toggle('aria-disabled', String(!isActive));
 }
 
-emailInput.addEventListener('input', updateLoginButtonState);
-passwordInput.addEventListener('input', updateLoginButtonState);
+emailInput.addEventListener('input', saveButtonState);
+passwordInput.addEventListener('input', saveButtonState);
 
 loginForm.addEventListener('submit', (event) => {
     // event.preventDefault();
@@ -36,4 +36,4 @@ loginForm.addEventListener('submit', (event) => {
     window.location.assign('../posts/list.html');
 });
 
-// updateLoginButtonState();
+saveButtonState();
