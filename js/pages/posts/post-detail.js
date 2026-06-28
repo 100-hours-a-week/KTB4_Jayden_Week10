@@ -53,6 +53,18 @@ const userId = document.body.dataset.userId || 6352;
  * 게시글 상세 조회
  */
 
+function setUiState(element, state, stateNames = ['is-loading', 'is-empty', 'is-error']) {
+    element.classList.remove(...stateNames);
+    if (state) element.classList.add(state);
+    element.setAttribute('aria-busy', String(state === 'is-loading'));
+}
+
+function setState(state) {
+    setUiState(commentMode, state);
+    commentsEmpty.hidden = state !== 'is-empty';
+    commentsError.hidden = state !== 'is-error';
+}
+
 function formatCount(value) {
     const count = Number(value);
     return count >= 1000 ? `${Math.floor(count / 1000)}k` : String(count);
@@ -123,6 +135,10 @@ async function fetchArticle() {
     renderGallery(Array.isArray(article.contentImages) ? article.contentImages : []);
 }
 
+document.querySelector('[article-update-button]').addEventListener('click', () => {
+    window.location.assign(`./edit.html?id=${articleId}`)
+});
+
 document.querySelector('[data-gallery-previous]').addEventListener('click', () => showGallerySlide(activeSlide - 1));
 document.querySelector('[data-gallery-next]').addEventListener('click', () => showGallerySlide(activeSlide + 1));
 
@@ -162,9 +178,14 @@ document.querySelector('[data-post-delete-confirm]').addEventListener('click', a
 postDeleteModal.addEventListener('close', () => postDeleteModal.classList.remove('is-active'));
 
 
+
 /**
  * 댓글
  */
+
+commentInput.addEventListener('input', () => { 
+    updateCommentForm(); 
+});
 
 commentForm.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -205,76 +226,102 @@ const createComment = (comment, { reply = false } = {}) => {
     const text = document.createElement('p');
 
     item.className = `comment-item${reply ? ' is-reply' : ''}`;
-    item.dataset.commentId = comment.comment_id;
-    if (comment.parent_comment_id) item.dataset.parentCommentId = comment.parent_comment_id;
+    item.dataset.commentId = comment.commentId;
+    
+    if (comment.parentCommentId) item.dataset.parentCommentId = comment.parentCommentId;
+    
     avatar.className = 'avatar';
     avatar.setAttribute('aria-hidden', 'true');
-    author.textContent = comment.nickname || `사용자 ${comment.user_id || ''}`.trim() || '더미 작성자';
-    time.dateTime = comment.created_at || '';
-    time.textContent = String(comment.created_at || new Date().toISOString()).replace('T', ' ').slice(0, 19);
+    
+    author.textContent = comment.nickname || `사용자 ${comment.userId || ''}`.trim() || '더미 작성자';
+    
+    time.dateTime = comment.createdAt || '';
+    time.textContent = String(comment.createdAt).replace('T', ' ').slice(0, 19);
+    
     actions.className = 'comment-item__actions';
-    edit.type = 'button'; edit.textContent = '수정'; edit.dataset.commentEdit = '';
-    remove.type = 'button'; remove.textContent = '삭제'; remove.dataset.commentDeleteOpen = '';
+    
+    edit.type = 'button'; 
+    edit.textContent = '수정'; 
+    edit.dataset.commentEdit = '';
+
+    remove.type = 'button'; 
+    remove.textContent = '삭제'; 
+    remove.dataset.commentDeleteOpen = '';
+
     text.dataset.commentText = '';
-    text.textContent = comment.deleted_at ? '삭제된 댓글입니다.' : comment.comment;
-    if (comment.deleted_at) { item.classList.add('is-deleted'); actions.remove(); }
-    else actions.append(edit, remove);
+    text.textContent = comment.deletedAt ? '삭제된 댓글입니다.' : comment.comment;
+
+    if (comment.deletedAt) { 
+        item.classList.add('is-deleted'); actions.remove(); 
+    } else actions.append(edit, remove);
+
     header.append(avatar, author, time, actions);
     article.append(header, text);
     item.append(article);
+
     return item;
 };
 
 async function fetchComments({ reset = false } = {}) {
-    if (!hasNext) return;
+    if (!hasNext || isFetching) return;
 
     isFetching = true;
     loadingMore.hidden = false;
 
+    try {
+        const lastCommentQuery = lastCommentId == null ? '' : `&lastCommentId=${lastCommentId}`;
+        const lastParentCommentQuery = lastParentCommentId == null ? '' : `&lastParentCommentId=${lastParentCommentId}`;
+        const response = await fetch(`http://localhost:8080/articles/${articleId}/comments?pageSize=${commentPageSize}${lastCommentQuery}${lastParentCommentQuery}`);
+        const comments = await response.json();
+        const commentArray = Array.isArray(comments.data) ? comments.data : [];
 
-    const lastCommentQuery = lastCommentId == null ? '' : `&lastCommentId=${lastCommentId}`;
-    const lastParentCommentQuery = lastParentCommentId == null ? '' : `&lastParentCommentId=${lastParentCommentId}`;
-    const response = await fetch(`http://localhost:8080/articles/${articleId}/comments?pageSize=${commentPageSize}${lastCommentQuery}${lastParentCommentQuery}`);
-    const comments = await response.json();
-    const commentArray = Array.isArray(comments.data) ? comments.data : [];
+        if (commentArray.length === 0 && isFirstLoad) {
+            setState('is-empty');
+            return;
+        }
 
-    if (commentArray.length === 0 && isFirstLoad) {
-        setState('is-empty');
-        return;
+        commentList.append(...commentArray.map(comment => createComment(comment, {reply: Boolean(comment.parentCommentId)})));
+
+        lastCommentId = commentArray[commentArray.length - 1].commentId;
+        lastParentCommentId = commentArray[commentArray.length - 1].parentCommentId;
+        setState(null);
+
+        isFirstLoad = false;
+        hasNext = commentArray.length === commentPageSize;
+        commentsSentinel.hidden = !hasNext;
+    } catch (error) {
+        console.error(error);
+        setState('is-error');
+    } finally {
+        isFetching = false;
+        loadingMore.hidden = true;
     }
-    if (commentArray.length === 0 && isFirstLoad) {
-        setState('is-empty');
-        return;
-    }
-
-    commentList.append(...commentArray.map(comment => createComment(comment, {reply: Boolean(comment.parentCommentId)})));
-
-    lastCommentId = commentArray[commentArray.length - 1].commentId;
-    lastParentCommentId = commentArray[commentArray.length - 1].parentCommentId;
-    setState(null);
-
-    isFetching = false;
-    isFirstLoad = false;
-    hasNext = commentArray.length === commentPageSize;
-    commentsSentinel.hidden = !hasNext;
-    loadingMore.hidden = true;
 }
 
+commentList.addEventListener('click', (event) => {
+    const item = event.target.closest('.comment-item');
+    if (!item) return;
 
-commentInput.addEventListener('input', () => { 
-    updateCommentForm(); 
+    if (event.target.matches('[data-comment-edit]')) {
+        //TODO - 댓글 수정 버튼
+    }
+
+    if (event.target.matches('[data-comment-delete-open]')) {
+        pendingDeleteComment = item;
+
+        commentDeleteModal.showModal();
+        commentDeleteModal.classList.add('is-active');
+    }
 });
 
-commentForm.addEventListener('submit', (event) => {});
+document.querySelector('[data-comment-delete-confirm]').addEventListener('click', async (event) => {
+    const commentId = pendingDeleteComment.dataset.commentId;
+    const response = await fetch(`http://localhost:8080/articles/${articleId}/comments/${commentId}`, 
+        { method: 'DELETE' }
+    );
+});
 
-
-commentList.addEventListener('click', (event) => {});
-
-
-document.querySelector('[data-comment-delete-confirm]').addEventListener('click', () => {});
-
-
-commentDeleteModal.addEventListener('close', () => modal.classList.remove('is-active'));
+commentDeleteModal.addEventListener('close', () => commentDeleteModal.classList.remove('is-active'));
 
 
 window.addEventListener('scroll', () => {

@@ -64,7 +64,7 @@
 .comment-item.is-deleted p { color: var(--color-subtle); font-style: italic; }
 .comments-state-message { color: var(--color-subtle); font-size: var(--font-control); text-align: center; }
 .comments-state-message--error { color: var(--color-danger); }
-.comments-loading-more { display: flex; align-items: center; justify-content: center; gap: var(--space-2); padding: var(--space-4); color: var(--color-subtle); font-size: var(--font-control); }
+.comments-loading-more { display: none; align-items: center; justify-content: center; gap: var(--space-2); padding: var(--space-4); color: var(--color-subtle); font-size: var(--font-control); }
 .comments-loading-more span { width: 1rem; height: 1rem; border: 2px solid var(--color-line); border-top-color: var(--color-primary-hover); border-radius: 50%; animation: detail-spin 700ms linear infinite; }
 
 /* --------------------------------------------------------------------------

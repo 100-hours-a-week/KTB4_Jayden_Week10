@@ -83,30 +83,36 @@ async function fetchArticles() {
     isFetching = true;
     loadingMore.hidden = false;
 
-    const appendLastArticleId = isFirstLoad ? '' : `&lastArticleId=${lastArticleId}`;
-    const response = await fetch(`http://localhost:8080/articles?pageSize=${pageSize}${appendLastArticleId}`);
-    const articles = await response.json();
-    const articleArray = Array.isArray(articles.data) ? articles.data : [];
+    try {
+        const appendLastArticleId = isFirstLoad ? '' : `&lastArticleId=${lastArticleId}`;
+        const response = await fetch(`http://localhost:8080/articles?pageSize=${pageSize}${appendLastArticleId}`);
+        const articles = await response.json();
+        const articleArray = Array.isArray(articles.data) ? articles.data : [];
 
-    if (articleArray.length === 0 && isFirstLoad) {
-        setState('is-empty');
-        return;
+        if (articleArray.length === 0 && isFirstLoad) {
+            setState('is-empty');
+            return;
+        }
+        if (articleArray.length === 0 && !isFirstLoad) {
+            setState('is-empty');
+            return;
+        }
+
+        list.append(...articleArray.map(article => createArticleCard(article)));
+
+        lastArticleId = articleArray[articleArray.length - 1].articleId;
+        setState(null);
+
+        isFirstLoad = false;
+        hasNext = articleArray.length === pageSize;
+        sentinel.hidden = !hasNext;
+    } catch (error) {
+        console.error(error);
+        setState('is-error');
+    } finally {
+        isFetching = false;
+        loadingMore.hidden = true;
     }
-    if (articleArray.length === 0 && !isFirstLoad) {
-        setState('is-empty');
-        return;
-    }
-
-    list.append(...articleArray.map(article => createArticleCard(article)));
-
-    lastArticleId = articleArray[articleArray.length - 1].articleId;
-    setState(null);
-
-    isFetching = false;
-    isFirstLoad = false;
-    hasNext = articleArray.length === pageSize;
-    sentinel.hidden = !hasNext;
-    loadingMore.hidden = true;
 };
 
 window.addEventListener('scroll', () => {
