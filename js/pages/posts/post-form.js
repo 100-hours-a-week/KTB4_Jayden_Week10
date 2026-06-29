@@ -44,7 +44,6 @@ async function createArticle(articleData) {
         return { articleId : 6352 }
     }
 
-    const formData = new FormData();
     const response = await fetch('http://localhost:8080/articles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

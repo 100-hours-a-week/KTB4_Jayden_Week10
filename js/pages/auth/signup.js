@@ -50,19 +50,39 @@ passwordInput.addEventListener('input', saveButtonState);
 passwordConfirmInput.addEventListener('input', saveButtonState);
 nicknameInput.addEventListener('input', saveButtonState);
 
-signupForm.addEventListener('submit', (event) => {
-    // event.preventDefault();
+async function signup(signupData) {
+    const response = await fetch('http://localhost:8080/users',
+        {
+            method : 'POST', 
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({...signupData})
+        }
+    );
+
+    if (!response.ok) return new Error('회원 가입 실패');
+    return response.json();
+}
+
+
+signupForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
 
     const email = emailInput.value.trim()
     const password = passwordInput.value.trim();
     const passwordConfirm = passwordConfirmInput.value.trim();
     const nickname = nicknameInput.value.trim();
+    const profileImage = imageInput.file;
 
     if (!email || !password || !passwordConfirm || !nickname) {
         alert('이메일과 비밀번호, 닉네임을 모두 입력해주세요.');
         return;
     }
-    event.preventDefault();
+
+    const signupData = {email, password, nickname, profileImage}
+    const result = await signup(signupData);
+
+    saveButtonState();
+
     window.location.assign('./login.html');
 });
 

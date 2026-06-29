@@ -32,7 +32,19 @@ loginForm.addEventListener('submit', async (event) => {
         alert('이메일과 비밀번호를 모두 입력해주세요.');
         return;
     }
-    // event.preventDefault();
+
+    const response = await fetch('http://localhost:8080/auth/login', 
+        {
+            method : 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body : JSON.stringify({email, password})
+        }
+    );
+    const result = await response.json();
+    const token = result.data;
+
+    if (!token) throw new Error("로그인 실패");
+
     window.location.assign('../posts/list.html');
 });
 
