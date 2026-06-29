@@ -22,8 +22,8 @@ function saveButtonState() {
 emailInput.addEventListener('input', saveButtonState);
 passwordInput.addEventListener('input', saveButtonState);
 
-loginForm.addEventListener('submit', (event) => {
-    // event.preventDefault();
+loginForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
 
     const email = emailInput.value.trim();
     const password = passwordInput.value.trim();
