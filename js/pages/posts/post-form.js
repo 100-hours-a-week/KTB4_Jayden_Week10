@@ -86,7 +86,7 @@ postCreateForm.addEventListener('submit', async (event) => {
 
     const title = titleInput.value.trim();
     const content = contentInput.value.trim();
-    const contentImages = Array.from(imageInput.files || [])
+    const contentImages = (imageInput.files[0] || [])
             .map(file => file.name);
 
     if (!title) {

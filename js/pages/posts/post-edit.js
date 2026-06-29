@@ -45,16 +45,16 @@ async function fetchArticle() {
         titleInput.value = article.title;
         contentInput.value = article.content;
 
-        // existingImages.forEach((file) => {
-        // const url = URL.createObjectURL(file);
-        // previewUrls.push(url);
-        // const item = document.createElement('li');
-        // const image = document.createElement('img');
-        // image.src = url;
-        // image.alt = `${file.name} 미리보기`;
-        // item.append(image);
-        // imagePreviewList.append(item);
-        // }
+        existingImages.forEach((file) => {
+        const url = URL.createObjectURL(file);
+        previewUrls.push(url);
+        const item = document.createElement('li');
+        const image = document.createElement('img');
+        image.src = url;
+        image.alt = `${file.name} 미리보기`;
+        item.append(image);
+        imagePreviewList.append(item);
+        });
     } catch (error) {
         console.error(error);
         alert('게시글 정보를 불러오지 못했습니다.');

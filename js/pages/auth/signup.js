@@ -31,10 +31,10 @@ function saveButtonState() {
 
     const isActive = email !== '' && password !== '' && passwordConfirm !== '' && nickname !== '';
 
-    // signupForm.classList.toggle('is-valid', isActive);
+    signupForm.classList.toggle('is-valid', isActive);
     submitButton.disabled = !isActive;
     submitButton.classList.toggle('is-disabled', !isActive);
-    // submitLabel.classList.toggle('aria-disabled', String(!isActive));
+    submitLabel.classList.toggle('aria-disabled', String(!isActive));
 }
 
 imageInput.addEventListener('change', (e) => {
@@ -44,6 +44,7 @@ imageInput.addEventListener('change', (e) => {
     profilePreview.src = URL.createObjectURL(file);
     profileUpload.classList.add('has-image');
 });
+
 
 emailInput.addEventListener('input', saveButtonState);
 passwordInput.addEventListener('input', saveButtonState);
@@ -71,14 +72,15 @@ signupForm.addEventListener('submit', async (event) => {
     const password = passwordInput.value.trim();
     const passwordConfirm = passwordConfirmInput.value.trim();
     const nickname = nicknameInput.value.trim();
-    const profileImage = imageInput.file;
+    const profileImage = imageInput.files[0] || null;
+    const profileName = profileImage ? profileImage.name : null;
 
     if (!email || !password || !passwordConfirm || !nickname) {
         alert('이메일과 비밀번호, 닉네임을 모두 입력해주세요.');
         return;
     }
 
-    const signupData = {email, password, nickname, profileImage}
+    const signupData = {email, password, nickname, profileImage : profileName}
     const result = await signup(signupData);
 
     saveButtonState();

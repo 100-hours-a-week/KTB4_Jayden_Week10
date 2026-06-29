@@ -15,6 +15,7 @@ const withdrawConfirmButton = document.querySelector('[data-withdraw-confirm]');
 
 const toast = document.querySelector('.profile-toast');
 
+const userId = document.body.dataset.userId || 6352;
 
 
 function saveButtonState() {
@@ -38,16 +39,27 @@ imageInput.addEventListener('change', (e) => {
 
 nicknameInput.addEventListener('input', saveButtonState);
 
-passwordForm.addEventListener('submit', (event) => {
+passwordForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     
+    const profileImage = imageInput.files[0] || null;
+    const profileName = profileImage ? profileImage.name : null;
     const nickname = nicknameInput.value.trim();
+
     if (!nickname) {
         alert('닉네임을 입력해주세요.');
         return;
     }
     saveButton.disabled = true;
     saveButton.setAttribute('aria-disabled', 'true');
+
+    const result = await fetch(`http://localhost:8080/users/${userId}`,
+        {
+            method : 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify( { nickname, profileImage : profileName } )
+        }
+    );
 
     window.setTimeout(() => {
         saveButtonState();

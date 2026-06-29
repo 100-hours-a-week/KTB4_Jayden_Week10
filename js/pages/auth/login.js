@@ -13,10 +13,10 @@ function saveButtonState() {
 
     const isActive = email !== '' && password !== '';
 
-    // loginForm.classList.toggle('is-valid', isActive);
+    loginForm.classList.toggle('is-valid', isActive);
     loginButton.disabled = !isActive;
     loginButton.classList.toggle('is-disabled', !isActive);
-    // loginButton.classList.toggle('aria-disabled', String(!isActive));
+    loginButton.classList.toggle('aria-disabled', String(!isActive));
 }
 
 emailInput.addEventListener('input', saveButtonState);
