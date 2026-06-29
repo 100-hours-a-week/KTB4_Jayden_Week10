@@ -18,6 +18,7 @@ const toast = document.querySelector('.profile-toast');
 const userId = document.body.dataset.userId || 6352;
 
 
+
 function saveButtonState() {
     const nickname = nicknameInput.value.trim();
 

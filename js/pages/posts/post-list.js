@@ -49,14 +49,16 @@ function createArticleCard(article) {
     link.className = 'article-card__link';
     link.href = `./detail.html?id=${encodeURIComponent(article.articleId)}`;
     link.setAttribute('aria-label', `${title} 게시글 상세 보기`);
+
     body.className = 'article-card__body';
+
     heading.className = 'article-card__title';
     heading.title = title;
     heading.textContent = title;
+
     meta.className = 'article-card__meta';
     meta.append(`좋아요 ${formatCount(article.articleLikeCount)} | `, `댓글 ${formatCount(article.commentCount)} | `, `조회수 ${formatCount(article.articleViewCount)}`);
-    date.dateTime = article.createdAt || '';
-    date.textContent = article.createdAt;
+    date.textContent = String(article.createdAt).replace('T', ' ').slice(0, 19);
     meta.append(date);
     footer.className = 'article-card__author';
     avatar.className = 'avatar avatar--placeholder';

@@ -6,6 +6,11 @@ const apiBase = document.body.dataset.apiBase;
 const title = document.querySelector('[data-article-title]');
 const body = document.querySelector('[data-article-body]');
 
+const articleAvatar = document.querySelector('[data-article-avatar]');
+const articleAuthor = document.querySelector('[data-article-author]');
+const articleCreatedAt = document.querySelector('[data-article-created-at]');
+const articleEdited = document.querySelector('[data-article-edited]');
+
 const likeButton = document.querySelector('[data-like-button]');
 const likeCount = document.querySelector('[data-like-count]');
 const viewCount = document.querySelector('[data-view-count]');
@@ -126,6 +131,13 @@ async function fetchArticle() {
 
     title.textContent = article.title;
     body.textContent = article.content;
+
+    articleAvatar.className = 'avatar';
+
+    articleAuthor.textContent = article.nickname || `사용자 ${article.userId || ''}`.trim() || '더미 작성자';
+    articleCreatedAt.textContent = String(article.createdAt).replace('T', ' ').slice(0, 19);
+    articleEdited.hidden = !(article.updatedAt !== null);
+
     likeCount.dataset.count = String(article.articleLikeCount);
     likeCount.textContent = formatCount(likeCount.dataset.count);
     viewCount.dataset.count = String(article.articleViewCount);
@@ -176,6 +188,15 @@ document.querySelector('[data-post-delete-confirm]').addEventListener('click', a
 });
 
 postDeleteModal.addEventListener('close', () => postDeleteModal.classList.remove('is-active'));
+
+async function incrementViewCount() {
+    const result = await fetch(`http://localhost:8080/views/articles/${articleId}/users/${userId}`,
+        {
+            method : 'POST'
+        }
+    );
+}
+
 
 
 
@@ -335,3 +356,4 @@ window.addEventListener('scroll', () => {
 updateCommentForm();
 fetchArticle();
 fetchComments();
+incrementViewCount();
