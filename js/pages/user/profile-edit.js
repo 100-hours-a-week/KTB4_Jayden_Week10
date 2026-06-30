@@ -1,11 +1,11 @@
-const passwordForm = document.querySelector('.profile-edit-form');
+const profileEditForm = document.querySelector('.profile-edit-form');
 
 const email = document.querySelector('[data-profile-email]')
 
 const nicknameField = document.querySelector('.form-field--nickname');
 const nicknameInput = document.querySelector('#nickname');
 
-const saveButton = document.querySelector('.profile-save-button');
+const updateButton = document.querySelector('.profile-save-button');
 
 const imageInput = document.querySelector('#profile-image');
 const profileUpload = document.querySelector('.profile-image-upload');
@@ -19,6 +19,9 @@ const toast = document.querySelector('.profile-toast');
 
 const userId = document.body.dataset.userId || 6352;
 
+const NICKNAME_REGEX = /^[ㄱ-ㅎ가-힣a-zA-Z0-9_-]{2,10}$/;
+const touched = {nickname : false}
+
 async function fetchUserInfo() {
     const result = await fetch(`http://localhost:8080/users/${userId}`);
     const payload = await result.json();
@@ -29,15 +32,42 @@ async function fetchUserInfo() {
     profilePreview.src = userInfo.profileImage;
 }
 
-function saveButtonState() {
+function nicknameInputState() {
+    if (!nicknameInput.value) return {valid: false, type: 'required'};
+    if (/\s/.test(nicknameInput.value)) return { valid: false, type: 'whitespace'};
+    if (nicknameInput.value.length > 10) return { valid: false, type: 'max'};
+    // if () return { valid: false, type: 'duplicate'}; 닉네임 중복 확인 API 생성 필요
+    return {valid : NICKNAME_REGEX.test(nicknameInput.value), type : 'format'};
+}
+
+function renderField(element, input, result, hasBeenTouched) {
+    element.classList.remove('is-empty', 'is-filled', 'is-invalid', 'is-valid', 'is-required', 'is-format', 'is-mismatch', 'is-whitespace', 'is-max', 'is-duplicate');
+    input.setAttribute('aria-invalid', 'false');
+
+    if (input.value) element.classList.add('is-filled');
+    else element.classList.add('is-empty');
+
+    if (result.valid) {
+        element.classList.add('is-valid');
+    } else if (hasBeenTouched) {
+        element.classList.add('is-invalid', `is-${result.type}`);
+        input.setAttribute('aria-invalid', 'true');
+    }
+}
+
+function updateButtonState() {
     const nickname = nicknameInput.value.trim();
 
-    const isActive = nickname !== '' && nickname.length <= 11;
+    const result = nicknameInputState();
+    
+    renderField(nicknameField, nicknameInput, result, touched);
 
-    passwordForm.classList.toggle('is-valid', isActive);
-    saveButton.disabled = !isActive;
-    saveButton.classList.toggle('is-disabled', !isActive);
-    saveButton.setAttribute('aria-disabled', String(!isActive));
+    const isValid = result.valid
+
+    profileEditForm.classList.toggle('is-valid', isValid);
+    updateButton.disabled = !isValid;
+    updateButton.classList.toggle('is-disabled', !isValid);
+    updateButton.setAttribute('aria-disabled', String(!isValid));
 }
 
 imageInput.addEventListener('change', (e) => {
@@ -48,21 +78,18 @@ imageInput.addEventListener('change', (e) => {
     profileUpload.classList.add('has-image');
 });
 
-nicknameInput.addEventListener('input', saveButtonState);
+nicknameInput.addEventListener('input', updateButtonState);
 
-passwordForm.addEventListener('submit', async (event) => {
+profileEditForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     
     const profileImage = imageInput.files[0] || null;
     const profileName = profileImage ? profileImage.name : null;
     const nickname = nicknameInput.value.trim();
+    
+    updateButtonState();
 
-    if (!nickname) {
-        alert('닉네임을 입력해주세요.');
-        return;
-    }
-    saveButton.disabled = true;
-    saveButton.setAttribute('aria-disabled', 'true');
+    if (updateButton.disabled) return;
 
     const result = await fetch(`http://localhost:8080/users/${userId}`,
         {
@@ -72,8 +99,9 @@ passwordForm.addEventListener('submit', async (event) => {
         }
     );
 
+
     window.setTimeout(() => {
-        saveButtonState();
+        updateButtonState();
         toast.hidden = false;
         toast.classList.add('is-active');
         window.setTimeout(() => {
@@ -98,4 +126,4 @@ withdrawConfirmButton.addEventListener('click', () => {
 });
 
 fetchUserInfo();
-saveButtonState();
+updateButtonState();

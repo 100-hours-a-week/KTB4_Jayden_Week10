@@ -7,6 +7,7 @@ const emailInput = document.querySelector('#email');
 const passwordInput = document.querySelector('#password');
 
 const loginButton = document.querySelector('.login-button');
+const loginLabel = document.querySelector('.login-button__label')
 
 /**
  * input 검증
@@ -55,7 +56,7 @@ function loginState() {
     loginForm.classList.toggle('is-valid', isValid);
     loginButton.disabled = !isValid;
     loginButton.classList.toggle('is-disabled', !isValid);
-    submitLabel.classList.toggle('aria-disabled', String(!isValid));
+    loginLabel.classList.toggle('aria-disabled', String(!isValid));
 }
 
 emailInput.addEventListener('input', () => {
@@ -88,7 +89,7 @@ loginForm.addEventListener('submit', async (event) => {
     );
     const result = await response.json();
     const token = result.data;
-    if (!token) throw new Error("로그인 실패");
+    if (!token) loginForm.classList.add('is-error', true);
 
     loginState();
 
