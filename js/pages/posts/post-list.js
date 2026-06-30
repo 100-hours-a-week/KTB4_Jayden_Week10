@@ -2,7 +2,6 @@
 
 const feed = document.querySelector('.article-feed');
 const list = document.querySelector('[data-list-content]');
-const retryButton = document.querySelector('[data-retry]');
 const emptyMessage = document.querySelector('[data-empty]');
 const errorMessage = document.querySelector('[data-error]');
 const loadingMore = document.querySelector('[data-loading-more]');

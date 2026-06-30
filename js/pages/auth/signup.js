@@ -3,7 +3,6 @@ const submitButton = document.querySelector('.signup-button');
 const submitLabel = document.querySelector('.signup-button__label');
 
 const imageInput = document.querySelector('#profile-image');
-const profileField = document.querySelector('.profile-field');
 const profileUpload = document.querySelector('.profile-upload');
 const profilePreview = document.querySelector('.profile-upload__preview');
 

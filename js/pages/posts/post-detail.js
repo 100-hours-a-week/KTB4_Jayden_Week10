@@ -1,7 +1,6 @@
 const articleView = document.querySelector('[data-article-view]');
 
 const articleId = new URLSearchParams(window.location.search).get('id');
-const apiBase = document.body.dataset.apiBase;
 
 const title = document.querySelector('[data-article-title]');
 const body = document.querySelector('[data-article-body]');
@@ -17,7 +16,6 @@ const viewCount = document.querySelector('[data-view-count]');
 const commentCount = document.querySelector('[data-comment-count]');
 
 const gallery = document.querySelector('[data-gallery]');
-const galleryArrows = document.querySelectorAll('.gallery-arrow');
 let gallerySlides = [...document.querySelectorAll('[data-gallery-slide]')];
 
 const postDeleteModal = document.querySelector('#post-delete-modal');
@@ -28,7 +26,7 @@ const commentInput = document.querySelector('[data-comment-input]');
 const commentSubmit = document.querySelector('[data-comment-submit]');
 const commentMode = document.querySelector('[data-comment-mode]');
 const commentList = document.querySelector('[data-comment-list]');
-const commentsSection = document.querySelector('[data-comments-section]');
+// const commentsSection = document.querySelector('[data-comments-section]');
 const commentsEmpty = document.querySelector('[data-comments-empty]');
 const commentsError = document.querySelector('[data-comments-error]');
 const commentsSentinel = document.querySelector('[data-comments-sentinel]');
@@ -37,7 +35,7 @@ const formError = document.querySelector('.comment-form__error');
 const loadingMore = document.querySelector('[data-comments-loading-more]');
 
 let activeSlide = 0;
-let editingComment = null;
+// let editingComment = null;
 let pendingDeleteComment = null;
 
 let isFetching = false;

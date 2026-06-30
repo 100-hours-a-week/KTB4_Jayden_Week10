@@ -7,7 +7,6 @@ const passwordInput = document.querySelector('#password');
 const passwordConfirmInput = document.querySelector('#password-confirm');
 
 const updateButton = document.querySelector('.password-save-button');
-const formError = document.querySelector('.password-edit-form__error');
 
 const toast = document.querySelector('.password-toast');
 

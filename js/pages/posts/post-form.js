@@ -1,8 +1,5 @@
 const postCreateForm = document.querySelector('.post-create-form');
 
-const titleField = document.querySelector('.form-field--title');
-const contentField = document.querySelector('.form-field--content');
-
 const titleInput = document.querySelector('#post-title');
 const contentInput = document.querySelector('#post-content');
 const imageInput = document.querySelector('#content-images');
@@ -11,17 +8,10 @@ const imageGuide = document.querySelector('[data-image-guide]');
 const imagePreviewList = document.querySelector('[data-image-preview-list]');
 
 const submitButton = document.querySelector('.post-create-button');
-const submitLabel = document.querySelector('.post-create-button__label');
 
 const formError = document.querySelector('.post-create-form__error');
 
-const limitedMessage = document.querySelector('.post-create-form__limited');
-const successMessage = document.querySelector('.post-create-form__success');
-
-const touched = { title: false, content: false };
-
 let previewUrls = [];
-let isLimited = false;
 
 
 

@@ -4,9 +4,6 @@ const backButton = document.querySelector('.post-edit-back');
 
 const articleId = new URLSearchParams(window.location.search).get('id');
 
-const titleField = document.querySelector('.post-edit-field--title');
-const contentField = document.querySelector('.post-edit-field--content');
-
 const titleInput = document.querySelector('#post-title');
 const contentInput = document.querySelector('#post-content');
 const imageInput = document.querySelector('#content-images');
@@ -15,15 +12,10 @@ const imageGuide = document.querySelector('[data-image-guide]');
 const imagePreviewList = document.querySelector('[data-image-list]');
 
 const submitButton = document.querySelector('.post-edit-button');
-const submitLabel = document.querySelector('[data-submit-label]');
 
 const formError = document.querySelector('.post-edit-error');
 
-const successMessage = document.querySelector('.post-edit-success');
-
-const touched = { title: false, content: false };
 let previewUrls = [];
-let isLimited = false;
 
 
 backButton.addEventListener('click', () => {
