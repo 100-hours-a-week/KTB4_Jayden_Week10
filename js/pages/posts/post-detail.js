@@ -268,7 +268,7 @@ const createComment = (comment, { reply = false } = {}) => {
     remove.dataset.commentDeleteOpen = '';
 
     text.dataset.commentText = '';
-    text.textContent = comment.deletedAt ? '삭제된 댓글입니다.' : comment.comment;
+    text.textContent = comment.deletedAt ? '삭제된 댓글입니다.' : comment.commentText;
 
     if (comment.deletedAt) { 
         item.classList.add('is-deleted'); actions.remove(); 
