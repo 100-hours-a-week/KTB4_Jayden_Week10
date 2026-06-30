@@ -41,7 +41,7 @@
           <div class="profile-image-field is-valid">
             <span class="profile-image-field__label">프로필 사진</span>
             <label class="profile-image-upload has-image" for="profile-image" aria-label="프로필 사진 변경">
-              <img class="profile-image-upload__preview" src="../../assets/images/default-profile.svg" alt="현재 프로필 사진" />
+              <img class="profile-image-upload__preview" src="../../assets/images/default-profile.svg" alt="현재 프로필 사진" data-profile-image-preview data-fallback-src="../../assets/images/default-profile.svg" />
               <span class="profile-image-upload__change">변경</span>
               <span class="profile-image-upload__plus" aria-hidden="true">+</span>
             </label>
@@ -51,7 +51,7 @@
           <div class="profile-edit-form__fields">
             <div class="profile-email">
               <span class="profile-email__label">이메일</span>
-              <p>startupcode@gmail.com</p>
+              <p aria-labelledby="profile-email-label" data-profile-email aria-live="polite">이메일 정보를 불러오는 중입니다.</p>
             </div>
             <!-- 상태: is-empty, is-filled, is-focused, is-invalid, is-valid, is-duplicate -->
             <div class="form-field form-field--nickname is-filled is-valid">

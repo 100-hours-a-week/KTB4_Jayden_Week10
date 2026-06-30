@@ -1,5 +1,7 @@
 const passwordForm = document.querySelector('.profile-edit-form');
 
+const email = document.querySelector('[data-profile-email]')
+
 const nicknameField = document.querySelector('.form-field--nickname');
 const nicknameInput = document.querySelector('#nickname');
 
@@ -17,7 +19,15 @@ const toast = document.querySelector('.profile-toast');
 
 const userId = document.body.dataset.userId || 6352;
 
+async function fetchUserInfo() {
+    const result = await fetch(`http://localhost:8080/users/${userId}`);
+    const payload = await result.json();
+    const userInfo = payload.data;
 
+    email.textContent = userInfo.email;
+    nicknameInput.value = userInfo.nickname;
+    profilePreview.src = userInfo.profileImage;
+}
 
 function saveButtonState() {
     const nickname = nicknameInput.value.trim();
@@ -87,5 +97,5 @@ withdrawConfirmButton.addEventListener('click', () => {
     window.location.assign('../auth/login.html');
 });
 
-
+fetchUserInfo();
 saveButtonState();
