@@ -1,2 +1,2 @@
-.toast { position: fixed; z-index: 20; bottom: var(--space-6); left: 50%; padding: var(--space-3) var(--space-4); color: var(--color-on-primary); background: var(--color-text); border-radius: var(--radius-sm); box-shadow: var(--shadow-card); transform: translateX(-50%); }
+.toast { position: fixed; z-index: 20; bottom: var(--space-6); left: 50%; padding: var(--space-3) var(--space-4); color: var(--color-on-primary); background: var(--color-primary); border-radius: var(--radius-pill); box-shadow: var(--shadow-card); transform: translateX(-50%); }
 .toast--error { background: var(--color-danger); }

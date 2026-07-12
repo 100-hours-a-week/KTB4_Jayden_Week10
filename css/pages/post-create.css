@@ -3,14 +3,14 @@
    -------------------------------------------------------------------------- */
 .post-create-page { min-height: 100vh; }
 .post-create-back { position: absolute; left: 0; display: grid; place-items: center; width: 3rem; height: 3rem; font-size: var(--font-icon-back); font-weight: 300; line-height: 0.7; }
-.post-create-main { min-height: calc(100vh - 6.625rem); padding: clamp(2.5rem, 5vh, 4.5rem) var(--space-4) var(--space-8); }
+.post-create-main { min-height: calc(100vh - 4.5rem); padding: clamp(2.5rem, 5vh, 4rem) var(--space-4) var(--space-8); }
 .post-create-section { width: min(100%, var(--editor-width)); margin: 0 auto; }
-.post-create-title { margin-bottom: clamp(4rem, 8vh, 7rem); font-size: var(--font-page-title); line-height: 1.2; text-align: center; letter-spacing: -0.06em; }
+.post-create-title { margin-bottom: var(--space-8); font-size: var(--font-page-title); line-height: 1.2; letter-spacing: 0; }
 
 /* --------------------------------------------------------------------------
    Title and content fields
    -------------------------------------------------------------------------- */
-.post-create-form { display: grid; }
+.post-create-form { display: grid; padding: var(--space-8); background: var(--color-surface); border: 1px solid rgb(235 227 216 / 75%); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
 .post-create-form__fields { display: grid; gap: var(--space-6); }
 .post-create-form .form-field { position: relative; gap: var(--space-4); padding-bottom: 1.85rem; border-bottom: 1px solid var(--color-line); }
 .post-create-form .form-field label { font-size: var(--font-label); line-height: 1.2; }
@@ -18,10 +18,10 @@
 .post-create-input { min-height: 3rem; font-size: var(--font-content-title); font-weight: 700; }
 .post-create-textarea { min-height: 25rem; font-size: var(--font-body); line-height: 1.6; resize: vertical; }
 .post-create-input::placeholder, .post-create-textarea::placeholder { color: var(--color-placeholder); }
-.form-field.is-focused { border-bottom-color: var(--color-primary-hover); box-shadow: 0 0.2rem 0.5rem rgb(127 106 238 / 10%); }
+.form-field.is-focused { border-bottom-color: var(--color-primary); box-shadow: 0 0.2rem 0.5rem rgb(223 122 74 / 10%); }
 .form-field.is-filled .post-create-input, .form-field.is-filled .post-create-textarea { background: var(--color-field-filled); }
 .form-field.is-invalid { border-bottom-color: var(--color-danger); }
-.form-field.is-valid { border-bottom-color: var(--color-primary-hover); }
+.form-field.is-valid { border-bottom-color: var(--color-subtle); }
 .post-field-helper { position: absolute; bottom: 0.25rem; left: 0; display: none; margin: 0; color: var(--color-danger); font-size: var(--font-helper); }
 .form-field.is-invalid .post-field-helper { display: block; }
 
@@ -32,20 +32,20 @@
 .image-upload-section h2 { margin: 0; font-size: var(--font-label); }
 .image-upload-control { display: flex; align-items: center; gap: var(--space-4); }
 .image-upload-control input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
-.image-upload-button { display: inline-flex; align-items: center; justify-content: center; min-height: 2.75rem; padding: 0 var(--space-4); color: var(--color-text); background: var(--color-surface); border: 1px solid var(--color-text); border-radius: var(--radius-sm); cursor: pointer; }
-.image-upload-button:hover { border-color: var(--color-primary-hover); color: var(--color-primary-hover); }
-.image-upload-guide { color: var(--color-text); font-size: var(--font-body); }
+.image-upload-button { display: inline-flex; align-items: center; justify-content: center; min-height: 2.5rem; padding: 0 var(--space-4); color: var(--color-text); background: var(--color-field-filled); border: 1px solid var(--color-line); border-radius: var(--radius-pill); cursor: pointer; }
+.image-upload-button:hover { border-color: var(--color-subtle); color: var(--color-text); background: var(--color-surface-raised); }
+.image-upload-guide { color: var(--color-subtle); font-size: var(--font-control); }
 .image-preview-list { display: flex; flex-wrap: wrap; gap: var(--space-3); padding: 0; margin: 0; list-style: none; }
 .image-preview-list li { width: 5.5rem; }
 .image-preview-list img { width: 5.5rem; height: 5.5rem; object-fit: cover; border-radius: var(--radius-sm); box-shadow: var(--shadow-card); }
 .post-create-form.has-no-image .image-preview-list { display: none; }
-.post-create-form.has-image .image-upload-guide { color: var(--color-primary-hover); }
+.post-create-form.has-image .image-upload-guide { color: var(--color-success); }
 
 /* --------------------------------------------------------------------------
    Submit, error, limited and success states
    -------------------------------------------------------------------------- */
-.post-create-button { position: relative; width: min(100%, var(--button-editor-width)); min-height: 3rem; margin: var(--space-6) auto 0; border-radius: var(--radius-sm); font-size: var(--font-body); }
-.post-create-form.is-valid .post-create-button:not(:disabled) { background: var(--color-primary-hover); }
+.post-create-button { position: relative; width: min(100%, var(--button-editor-width)); min-height: 3rem; margin: var(--space-6) auto 0; border-radius: var(--radius-pill); font-size: var(--font-body); }
+.post-create-form.is-valid .post-create-button:not(:disabled) { background: var(--color-primary); }
 .post-create-button.is-disabled { color: var(--color-disabled-text); background: var(--color-disabled-surface); cursor: not-allowed; opacity: 1; }
 .post-create-button.is-disabled:hover { background: var(--color-disabled-surface); }
 .post-create-button:disabled { pointer-events: none; }
@@ -54,12 +54,12 @@
 .post-create-form.is-loading .post-create-button__spinner { display: block; }
 .post-create-form__error, .post-create-form__limited, .post-create-form__success { margin: var(--space-2) 0 0; font-size: var(--font-helper); text-align: center; }
 .post-create-form__error, .post-create-form__limited { color: var(--color-danger); }
-.post-create-form__success { color: var(--color-primary-hover); }
+.post-create-form__success { color: var(--color-success); }
 .post-create-form.is-limited .post-create-button { pointer-events: none; color: var(--color-disabled-text); background: var(--color-disabled-surface); opacity: 1; }
 @keyframes post-create-spin { to { transform: rotate(360deg); } }
 
 /* --------------------------------------------------------------------------
    Responsive breakpoints
    -------------------------------------------------------------------------- */
-@media (max-width: 48rem) { .post-create-main { min-height: calc(100vh - 5.5rem); padding-top: var(--space-8); } .post-create-title { margin-bottom: var(--space-10); } .post-create-textarea { min-height: 19rem; } }
-@media (max-width: 30rem) { .post-create-main { min-height: calc(100vh - 5.5rem); padding-top: var(--space-6); } .post-create-section { width: min(100%, var(--form-width)); } .post-create-back { width: 2.75rem; } .post-create-title { margin-bottom: var(--space-8); } .post-create-form__fields { gap: var(--space-5); } .post-create-form .form-field { gap: var(--space-3); } .post-create-input { font-size: var(--font-section-title); } .post-create-textarea { min-height: 15rem; } .image-upload-control { gap: var(--space-2); } .image-upload-guide { font-size: var(--font-control); } .post-create-button { width: 100%; min-height: 2.75rem; margin-top: var(--space-5); } }
+@media (max-width: 48rem) { .post-create-main { min-height: calc(100vh - 4.5rem); padding-top: var(--space-8); } .post-create-title { margin-bottom: var(--space-8); } .post-create-textarea { min-height: 19rem; } }
+@media (max-width: 30rem) { .post-create-main { min-height: calc(100vh - 4.5rem); padding-top: var(--space-6); } .post-create-section { width: min(100%, var(--form-width)); } .post-create-form { padding: var(--space-5); } .post-create-back { width: 2.75rem; } .post-create-title { margin-bottom: var(--space-6); } .post-create-form__fields { gap: var(--space-5); } .post-create-form .form-field { gap: var(--space-3); } .post-create-input { font-size: var(--font-section-title); } .post-create-textarea { min-height: 15rem; } .image-upload-control { gap: var(--space-2); } .image-upload-guide { font-size: var(--font-control); } .post-create-button { width: 100%; min-height: 2.75rem; margin-top: var(--space-5); } }

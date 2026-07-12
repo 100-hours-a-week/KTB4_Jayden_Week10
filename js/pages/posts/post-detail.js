@@ -26,16 +26,19 @@ const commentInput = document.querySelector('[data-comment-input]');
 const commentSubmit = document.querySelector('[data-comment-submit]');
 const commentMode = document.querySelector('[data-comment-mode]');
 const commentList = document.querySelector('[data-comment-list]');
-// const commentsSection = document.querySelector('[data-comments-section]');
+const commentsSection = document.querySelector('[data-comments-section]');
 const commentsEmpty = document.querySelector('[data-comments-empty]');
 const commentsError = document.querySelector('[data-comments-error]');
 const commentsSentinel = document.querySelector('[data-comments-sentinel]');
+const commentEditTemplate = document.querySelector('[data-comment-edit-template]');
 
 const formError = document.querySelector('.comment-form__error');
 const loadingMore = document.querySelector('[data-comments-loading-more]');
 
 let activeSlide = 0;
-// let editingComment = null;
+let editingComment = null;
+let editingCommentId = null;
+let editingCommentText = '';
 let pendingDeleteComment = null;
 
 let isFetching = false;
@@ -50,6 +53,19 @@ let commentPageSize = 10;
 const fallbackImageSrc = document.querySelector('[data-gallery-image]')?.dataset.fallbackSrc || '../../assets/images/empty-posts.svg';
 
 const userId = document.body.dataset.userId || 6352;
+
+const commentEditEvents = {
+    open: 'click',
+    cancel: 'click',
+    input: 'input',
+    submit: 'submit'
+};
+
+const commentEditFetch = {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    endpoint: (commentId) => `http://localhost:8080/articles/${articleId}/comments/${commentId}`
+};
 
 
 /**
@@ -232,6 +248,20 @@ function updateCommentForm() {
 }
 
 
+function createCommentEditForm(comment) {
+    const editForm = commentEditTemplate.content.firstElementChild.cloneNode(true);
+    const editLabel = editForm.querySelector('[data-comment-edit-label]');
+    const editInput = editForm.querySelector('[data-comment-edit-input]');
+    const editInputId = `comment-edit-input-${comment.commentId}`;
+
+    editLabel.setAttribute('for', editInputId);
+    editInput.id = editInputId;
+    editInput.value = comment.commentText || '';
+
+    return editForm;
+}
+
+
 const createComment = (comment, { reply = false } = {}) => {
     const item = document.createElement('li');
     const article = document.createElement('article');
@@ -276,6 +306,7 @@ const createComment = (comment, { reply = false } = {}) => {
 
     header.append(avatar, author, time, actions);
     article.append(header, text);
+    if (!comment.deletedAt) article.append(createCommentEditForm(comment));
     item.append(article);
 
     return item;
@@ -322,7 +353,29 @@ commentList.addEventListener('click', (event) => {
     if (!item) return;
 
     if (event.target.matches('[data-comment-edit]')) {
-        //TODO - 댓글 수정 버튼
+        const editInput = item.querySelector('[data-comment-edit-input]');
+
+        if (editingComment && editingComment !== item) {
+            editingComment.classList.remove('is-editing');
+        }
+
+        editingComment = item;
+        editingCommentId = item.dataset.commentId;
+        editingCommentText = item.querySelector('[data-comment-text]')?.textContent.trim() || '';
+
+        editInput.value = editingCommentText;
+        item.classList.add('is-editing');
+        editInput.focus();
+    }
+
+    if (event.target.matches('[data-comment-edit-cancel]')) {
+        const editInput = item.querySelector('[data-comment-edit-input]');
+
+        editInput.value = item.querySelector('[data-comment-text]')?.textContent.trim() || '';
+        item.classList.remove('is-editing');
+        editingComment = null;
+        editingCommentId = null;
+        editingCommentText = '';
     }
 
     if (event.target.matches('[data-comment-delete-open]')) {
@@ -331,6 +384,28 @@ commentList.addEventListener('click', (event) => {
         commentDeleteModal.showModal();
         commentDeleteModal.classList.add('is-active');
     }
+});
+
+commentList.addEventListener('submit', async (event) => {
+    if (!event.target.matches('[data-comment-edit-form]')) return;
+    event.preventDefault();
+
+    const editForm = event.target;
+    const item = editForm.closest('.comment-item');
+    const editInput = editForm.querySelector('[data-comment-edit-input]');
+    const editError = editForm.querySelector('[data-comment-edit-error]');
+    const commentId = item.dataset.commentId;
+    const nextCommentText = editInput.value.trim();
+    const updateCommentUrl = commentEditFetch.endpoint(commentId);
+    const updateCommentOptions = {
+        method: commentEditFetch.method,
+        headers: commentEditFetch.headers,
+        body: JSON.stringify({ userId, commentText: nextCommentText })
+    };
+
+    editError.hidden = true;
+    // TODO - 댓글 수정 fetch 작성 위치
+    // const response = await fetch(updateCommentUrl, updateCommentOptions);
 });
 
 document.querySelector('[data-comment-delete-confirm]').addEventListener('click', async (event) => {
