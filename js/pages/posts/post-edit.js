@@ -1,3 +1,5 @@
+import { authFetch, refreshAccessToken } from '../../common/auth.js';
+
 const postEditForm = document.querySelector('.post-edit-form');
 
 const backButton = document.querySelector('.post-edit-back');
@@ -24,7 +26,7 @@ backButton.addEventListener('click', () => {
 
 async function fetchArticle() {
     try {
-        const response = await fetch(`http://localhost:8080/articles/${articleId}`);
+        const response = await authFetch(`http://localhost:8080/articles/${articleId}`);
 
         if (!response.ok) {
         throw new Error('게시글 조회 실패');
@@ -32,24 +34,23 @@ async function fetchArticle() {
 
         const result = await response.json();
         const article = result.data;
-        const existingImages = article.contentImages || [];
+        const existingImages = article.contentImageUrls || [];
 
         titleInput.value = article.title;
         contentInput.value = article.content;
 
-        existingImages.forEach((file) => {
-        const url = URL.createObjectURL(file);
+        existingImages.forEach((url) => {
         previewUrls.push(url);
         const item = document.createElement('li');
         const image = document.createElement('img');
         image.src = url;
-        image.alt = `${file.name} 미리보기`;
+        image.alt = `${url.name} 미리보기`;
         item.append(image);
         imagePreviewList.append(item);
         });
     } catch (error) {
         console.error(error);
-        alert('게시글 정보를 불러오지 못했습니다.');
+        // alert('게시글 정보를 불러오지 못했습니다.');
     }
 }
 
@@ -65,18 +66,11 @@ function updateFormState() {
 }
 
 async function updateArticle(articleData) {
-    const userId = document.body.dataset.userId || 6352;
-
-    if (!userId) {
-        await new Promise((resolve) => window.setTimeout(resolve, 500));
-        return { articleId : 6352 }
-    }
-
     const formData = new FormData();
-    const response = await fetch(`http://localhost:8080/articles/${articleId}`, {
+    const response = await authFetch(`http://localhost:8080/articles/${articleId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify( {userId, ...articleData} )
+        body: JSON.stringify( { ...articleData} )
     });
 
     if (!response.ok) throw new Error("게시글 작성 실패");
@@ -85,6 +79,24 @@ async function updateArticle(articleData) {
 
 titleInput.addEventListener('input', updateFormState);
 contentInput.addEventListener('input', updateFormState);
+
+async function uploadContentImages(contentImages) {
+    if (!contentImages) return {data: {fileUrls: null}};
+    const formData = new FormData();
+    
+    for (const file of contentImages) {
+        formData.append('contentImages', file);
+    }
+    const response = await authFetch('http://localhost:8080/articles/content-image',
+        {
+            method : 'POST', 
+            body: formData
+        }
+    );
+
+    if (!response.ok) return new Error('이미지 업로드 실패');
+    return response.json();
+}
 
 imageInput.addEventListener('change', (e) => {
     const files = Array.from(imageInput.files || []);
@@ -116,7 +128,6 @@ postEditForm.addEventListener('submit', async (event) => {
     const title = titleInput.value.trim();
     const content = contentInput.value.trim();
     const contentImages = Array.from(imageInput.files || [])
-            .map(file => file.name);
 
     if (!title) {
         formError.textContent = '제목을 입력해주세요.';
@@ -125,8 +136,10 @@ postEditForm.addEventListener('submit', async (event) => {
     
     submitButton.disabled = true;
     submitButton.setAttribute('aria-disabled', 'true');
+
+    const ImageUrls = await uploadContentImages(contentImages)
     
-    const articleData = {title, content, contentImages}
+    const articleData = {title, content, contentImageUrls: ImageUrls.data.fileUrls}
     const result = await updateArticle(articleData);
 
     updateFormState();
@@ -137,5 +150,16 @@ postEditForm.addEventListener('submit', async (event) => {
     }, 500);
 });
 
-updateFormState();
-fetchArticle();
+async function initializePage() {
+    try {
+        await refreshAccessToken();
+        await fetchArticle();
+
+        updateFormState();
+    } catch (error) {
+        console.error(error);
+        // window.location.replace("../auth/login.html");
+    }
+}
+
+initializePage();

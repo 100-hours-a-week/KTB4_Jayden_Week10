@@ -46,7 +46,7 @@ titleInput.addEventListener('input', updateFormState);
 contentInput.addEventListener('input', updateFormState);
 
 async function uploadContentImages(contentImages) {
-    if (!contentImages) return {data: {fileUrls: null}};
+    if (contentImages.length === 0) return {data: {fileUrls: []}};
     const formData = new FormData();
     
     for (const file of contentImages) {
@@ -101,7 +101,7 @@ postCreateForm.addEventListener('submit', async (event) => {
     submitButton.setAttribute('aria-disabled', 'true');
     
     const ImageUrls = await uploadContentImages(contentImages)
-
+    console.log(ImageUrls)
     const articleData = {title, content, contentImageUrls: ImageUrls.data.fileUrls};
     const result = await createArticle(articleData);
 
@@ -109,9 +109,9 @@ postCreateForm.addEventListener('submit', async (event) => {
 
     const articleId = result.data.articleId;
     console.log(`게시글 작성 완료: ${articleId}`);
-    // window.setTimeout(() => {
-    //     window.location.assign(`./detail.html?id=${encodeURIComponent(articleId)}`);
-    // }, 500);
+    window.setTimeout(() => {
+        window.location.assign(`./detail.html?id=${encodeURIComponent(articleId)}`);
+    }, 500);
 });
 
 updateFormState();

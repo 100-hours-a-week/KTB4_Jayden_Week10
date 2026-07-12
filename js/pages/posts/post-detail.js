@@ -1,3 +1,5 @@
+import { refreshAccessToken, authFetch } from '../../common/auth.js';
+
 const articleView = document.querySelector('[data-article-view]');
 
 const articleId = new URLSearchParams(window.location.search).get('id');
@@ -52,20 +54,6 @@ let commentPageSize = 10;
 
 const fallbackImageSrc = document.querySelector('[data-gallery-image]')?.dataset.fallbackSrc || '../../assets/images/empty-posts.svg';
 
-const userId = document.body.dataset.userId || 6352;
-
-const commentEditEvents = {
-    open: 'click',
-    cancel: 'click',
-    input: 'input',
-    submit: 'submit'
-};
-
-const commentEditFetch = {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    endpoint: (commentId) => `http://localhost:8080/articles/${articleId}/comments/${commentId}`
-};
 
 
 /**
@@ -139,7 +127,7 @@ function renderGallery(images = []) {
 
 
 async function fetchArticle() {
-    const response = await fetch(`http://localhost:8080/articles/${articleId}`);
+    const response = await authFetch(`http://localhost:8080/articles/${articleId}`);
     const payload = await response.json();
     const article = payload.data;
 
@@ -147,8 +135,15 @@ async function fetchArticle() {
     body.textContent = article.content;
 
     articleAvatar.className = 'avatar';
+    if (article.profileImageUrl) {
+        const image = document.createElement('img');
+        image.src = article.profileImageUrl;
+        image.alt = '';
+        image.addEventListener('error', () => image.remove());
+        articleAvatar.append(image);
+    }
 
-    articleAuthor.textContent = article.nickname || `사용자 ${article.userId || ''}`.trim() || '더미 작성자';
+    articleAuthor.textContent = article.nickname || '더미 작성자';
     articleCreatedAt.textContent = String(article.createdAt).replace('T', ' ').slice(0, 19);
     articleEdited.hidden = !(article.updatedAt !== null);
 
@@ -158,7 +153,7 @@ async function fetchArticle() {
     viewCount.textContent = formatCount(viewCount.dataset.count);
     commentCount.dataset.count = String(article.commentCount);
     commentCount.textContent = formatCount(commentCount.dataset.count);
-    renderGallery(Array.isArray(article.contentImages) ? article.contentImages : []);
+    renderGallery(Array.isArray(article.contentImageUrls) ? article.contentImageUrls : []);
 }
 
 document.querySelector('[article-update-button]').addEventListener('click', () => {
@@ -174,10 +169,10 @@ likeButton.addEventListener('click', async () => {
     const currentCount = Number(likeCount.dataset.count);
     const next = Math.max(0, currentCount + (likeOn ? -1 : 1));
 
-    const response = likeOn ? await fetch(`http://localhost:8080/likes/articles/${articleId}/users/${userId}`, {
+    const response = likeOn ? await authFetch(`http://localhost:8080/likes/articles/${articleId}`, {
         method: 'DELETE'
     }) : 
-        await fetch(`http://localhost:8080/likes/articles/${articleId}/users/${userId}`, {
+        await authFetch(`http://localhost:8080/likes/articles/${articleId}`, {
             method: 'POST'
         });
 
@@ -193,10 +188,8 @@ document.querySelector('[data-post-delete-open]').addEventListener('click', () =
 });
 document.querySelector('[data-post-delete-confirm]').addEventListener('click', async () => {
 
-    const response = await fetch(`http://localhost:8080/articles/${articleId}`, {
+    const response = await authFetch(`http://localhost:8080/articles/${articleId}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({userId})
     });
     window.location.assign('./list.html');
 });
@@ -204,7 +197,7 @@ document.querySelector('[data-post-delete-confirm]').addEventListener('click', a
 postDeleteModal.addEventListener('close', () => postDeleteModal.classList.remove('is-active'));
 
 async function incrementViewCount() {
-    const result = await fetch(`http://localhost:8080/views/articles/${articleId}/users/${userId}`,
+    const result = await authFetch(`http://localhost:8080/views/articles/${articleId}`,
         {
             method : 'POST'
         }
@@ -230,10 +223,10 @@ commentForm.addEventListener('submit', async (event) => {
     
     if (!commentText) return; 
 
-    const response = await fetch(`http://localhost:8080/articles/${articleId}/comments`, {
+    const response = await authFetch(`http://localhost:8080/articles/${articleId}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({userId, commentText, parentCommentId})
+        body: JSON.stringify({commentText, parentCommentId})
     });
 
     updateCommentForm();
@@ -280,9 +273,16 @@ const createComment = (comment, { reply = false } = {}) => {
     if (comment.parentCommentId) item.dataset.parentCommentId = comment.parentCommentId;
     
     avatar.className = 'avatar';
-    avatar.setAttribute('aria-hidden', 'true');
+    if (comment.profileImageUrl) {
+        const image = document.createElement('img');
+        image.src = comment.profileImageUrl;
+        image.alt = '';
+        image.addEventListener('error', () => image.remove());
+        avatar.append(image);
+    }
+    // avatar.setAttribute('aria-hidden', 'true');
     
-    author.textContent = comment.nickname || `사용자 ${comment.userId || ''}`.trim() || '더미 작성자';
+    author.textContent = comment.nickname || '더미 작성자';
     
     time.dateTime = comment.createdAt || '';
     time.textContent = String(comment.createdAt).replace('T', ' ').slice(0, 19);
@@ -321,7 +321,7 @@ async function fetchComments({ reset = false } = {}) {
     try {
         const lastCommentQuery = lastCommentId == null ? '' : `&lastCommentId=${lastCommentId}`;
         const lastParentCommentQuery = lastParentCommentId == null ? '' : `&lastParentCommentId=${lastParentCommentId}`;
-        const response = await fetch(`http://localhost:8080/articles/${articleId}/comments?pageSize=${commentPageSize}${lastCommentQuery}${lastParentCommentQuery}`);
+        const response = await authFetch(`http://localhost:8080/articles/${articleId}/comments?pageSize=${commentPageSize}${lastCommentQuery}${lastParentCommentQuery}`);
         const comments = await response.json();
         const commentArray = Array.isArray(comments.data) ? comments.data : [];
 
@@ -396,21 +396,20 @@ commentList.addEventListener('submit', async (event) => {
     const editError = editForm.querySelector('[data-comment-edit-error]');
     const commentId = item.dataset.commentId;
     const nextCommentText = editInput.value.trim();
-    const updateCommentUrl = commentEditFetch.endpoint(commentId);
-    const updateCommentOptions = {
-        method: commentEditFetch.method,
-        headers: commentEditFetch.headers,
-        body: JSON.stringify({ userId, commentText: nextCommentText })
-    };
 
     editError.hidden = true;
-    // TODO - 댓글 수정 fetch 작성 위치
-    // const response = await fetch(updateCommentUrl, updateCommentOptions);
+    const response = await authFetch(`http://localhost:8080/articles/${articleId}/comments/${commentId}`, 
+        {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({commentText: nextCommentText})
+        }
+    );
 });
 
 document.querySelector('[data-comment-delete-confirm]').addEventListener('click', async (event) => {
     const commentId = pendingDeleteComment.dataset.commentId;
-    const response = await fetch(`http://localhost:8080/articles/${articleId}/comments/${commentId}`, 
+    const response = await authFetch(`http://localhost:8080/articles/${articleId}/comments/${commentId}`, 
         { method: 'DELETE' }
     );
 });
@@ -425,8 +424,18 @@ window.addEventListener('scroll', () => {
     }
 });
 
+async function initializePage() {
+    try {
+        await refreshAccessToken();
+        await fetchArticle();
+        await fetchComments();
 
-updateCommentForm();
-fetchArticle();
-fetchComments();
-incrementViewCount();
+        updateCommentForm();
+        incrementViewCount();
+    } catch (error) {
+        console.error(error);
+        // window.location.replace("../auth/login.html");
+    }
+}
+
+initializePage();
