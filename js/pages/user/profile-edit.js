@@ -1,3 +1,5 @@
+import {authFetch, refreshAccessToken} from '../../common/auth.js';
+
 const profileEditForm = document.querySelector('.profile-edit-form');
 
 const email = document.querySelector('[data-profile-email]')
@@ -17,19 +19,17 @@ const withdrawConfirmButton = document.querySelector('[data-withdraw-confirm]');
 
 const toast = document.querySelector('.profile-toast');
 
-const userId = document.body.dataset.userId || 6352;
-
 const NICKNAME_REGEX = /^[ㄱ-ㅎ가-힣a-zA-Z0-9_-]{2,10}$/;
 const touched = {nickname : false}
 
 async function fetchUserInfo() {
-    const result = await fetch(`http://localhost:8080/users/${userId}`);
+    const result = await authFetch(`http://localhost:8080/users/me`);
     const payload = await result.json();
     const userInfo = payload.data;
 
     email.textContent = userInfo.email;
     nicknameInput.value = userInfo.nickname;
-    profilePreview.src = userInfo.profileImage;
+    profilePreview.src = userInfo.profileImageUrl ? userInfo.profileImageUrl : "../../assets/images/default-profile.svg";
 }
 
 function nicknameInputState() {
@@ -78,24 +78,40 @@ imageInput.addEventListener('change', (e) => {
     profileUpload.classList.add('has-image');
 });
 
+async function uploadProfileImage(profileImage) {
+    if (!profileImage) return {data: {fileUrl: profilePreview.src}};
+    const formData = new FormData();
+    formData.append('profileImage', profileImage);
+    const response = await authFetch('http://localhost:8080/users/me/profile-image',
+        {
+            method : 'POST', 
+            body: formData
+        }
+    );
+
+    if (!response.ok) return new Error('이미지 업로드 실패');
+    return response.json();
+}
+
 nicknameInput.addEventListener('input', updateButtonState);
 
 profileEditForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     
     const profileImage = imageInput.files[0] || null;
-    const profileName = profileImage ? profileImage.name : null;
     const nickname = nicknameInput.value.trim();
     
     updateButtonState();
 
     if (updateButton.disabled) return;
 
-    const result = await fetch(`http://localhost:8080/users/${userId}`,
+    const profileResult = await uploadProfileImage(profileImage);
+
+    const result = await authFetch(`http://localhost:8080/users/me`,
         {
             method : 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify( { nickname, profileImage : profileName } )
+            body: JSON.stringify( { nickname, profileImageUrl : profileResult.data.fileUrl } )
         }
     );
 
@@ -121,9 +137,26 @@ withdrawOpenButton.addEventListener('click', () => {
 withdrawModal.addEventListener('close', () => {
     withdrawModal.classList.remove('is-active');
 });
-withdrawConfirmButton.addEventListener('click', () => {
+withdrawConfirmButton.addEventListener('click', async () => {
+
+        const result = await authFetch(`http://localhost:8080/users/me`,
+        {
+            method : 'DELETE'
+        }
+    );
+
     window.location.assign('../auth/login.html');
 });
 
-fetchUserInfo();
-updateButtonState();
+async function initializePage() {
+    try {
+        await refreshAccessToken();
+        await fetchUserInfo();
+        updateButtonState();
+    } catch (error) {
+        console.error(error);
+        // window.location.replace("../auth/login.html");
+    }
+}
+
+initializePage();

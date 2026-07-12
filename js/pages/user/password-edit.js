@@ -1,3 +1,5 @@
+import {refreshAccessToken, authFetch} from '../../common/auth.js';
+
 const passwordUpdateForm = document.querySelector('.password-edit-form');
 
 const passwordField = document.querySelector('.form-field--password');
@@ -9,8 +11,6 @@ const passwordConfirmInput = document.querySelector('#password-confirm');
 const updateButton = document.querySelector('.password-save-button');
 
 const toast = document.querySelector('.password-toast');
-
-const userId = document.body.dataset.userId || 6352;
 
 const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9])\S{8,20}$/;
 const touched = {password : false, passwordConfirm : false}
@@ -77,7 +77,7 @@ passwordUpdateForm.addEventListener('submit', async (event) => {
 
     if (updateButton.disabled) return;
 
-    const result = await fetch(`http://localhost:8080/users/${userId}/password`,
+    const result = await authFetch(`http://localhost:8080/users/me/password`,
         {
             method : 'PATCH',
             headers: { 'Content-Type': 'application/json' },
@@ -96,4 +96,14 @@ passwordUpdateForm.addEventListener('submit', async (event) => {
     }, 500);
 });
 
-updateButtonState();
+async function initializePage() {
+    try {
+        await refreshAccessToken();
+        updateButtonState();
+    } catch (error) {
+        console.error(error);
+        // window.location.replace("../auth/login.html");
+    }
+}
+
+initializePage();

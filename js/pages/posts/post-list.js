@@ -1,4 +1,4 @@
-
+import { refreshAccessToken, authFetch } from '../../common/auth.js';
 
 const feed = document.querySelector('.article-feed');
 const list = document.querySelector('[data-list-content]');
@@ -86,7 +86,7 @@ async function fetchArticles() {
 
     try {
         const appendLastArticleId = isFirstLoad ? '' : `&lastArticleId=${lastArticleId}`;
-        const response = await fetch(`http://localhost:8080/articles?pageSize=${pageSize}${appendLastArticleId}`);
+        const response = await authFetch(`http://localhost:8080/articles?pageSize=${pageSize}${appendLastArticleId}`);
         const articles = await response.json();
         const articleArray = Array.isArray(articles.data) ? articles.data : [];
 
@@ -114,7 +114,7 @@ async function fetchArticles() {
         isFetching = false;
         loadingMore.hidden = true;
     }
-};
+}
 
 window.addEventListener('scroll', () => {
     if (isFetching) return;
@@ -123,4 +123,14 @@ window.addEventListener('scroll', () => {
     }
 });
 
-fetchArticles();
+async function initializePage() {
+    try {
+        await refreshAccessToken();
+        await fetchArticles();
+    } catch (error) {
+        console.error(error);
+        // window.location.replace("../auth/login.html");
+    }
+}
+
+initializePage();

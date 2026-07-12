@@ -1,3 +1,5 @@
+import {refreshAccessToken, authFetch } from "../../common/auth.js";
+
 const postCreateForm = document.querySelector('.post-create-form');
 
 const titleInput = document.querySelector('#post-title');
@@ -27,18 +29,14 @@ function updateFormState() {
 }
 
 async function createArticle(articleData) {
-    const userId = document.body.dataset.userId || 6352;
 
-    if (!userId) {
-        await new Promise((resolve) => window.setTimeout(resolve, 500));
-        return { articleId : 6352 }
-    }
-
-    const response = await fetch('http://localhost:8080/articles', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify( {userId, ...articleData} )
-    });
+    const response = await authFetch('http://localhost:8080/articles', 
+        {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify( { ...articleData } )
+        }
+);
 
     if (!response.ok) throw new Error("게시글 작성 실패");
     return response.json();
@@ -46,6 +44,24 @@ async function createArticle(articleData) {
 
 titleInput.addEventListener('input', updateFormState);
 contentInput.addEventListener('input', updateFormState);
+
+async function uploadContentImages(contentImages) {
+    if (!contentImages) return {data: {fileUrls: null}};
+    const formData = new FormData();
+    
+    for (const file of contentImages) {
+        formData.append('contentImages', file);
+    }
+    const response = await authFetch('http://localhost:8080/articles/content-image',
+        {
+            method : 'POST', 
+            body: formData
+        }
+    );
+
+    if (!response.ok) return new Error('이미지 업로드 실패');
+    return response.json();
+}
 
 imageInput.addEventListener('change', (e) => {
     const files = Array.from(imageInput.files || []);
@@ -67,8 +83,6 @@ imageInput.addEventListener('change', (e) => {
         item.append(image);
         imagePreviewList.append(item);
     });
-
-
 });
 
 postCreateForm.addEventListener('submit', async (event) => {
@@ -76,8 +90,7 @@ postCreateForm.addEventListener('submit', async (event) => {
 
     const title = titleInput.value.trim();
     const content = contentInput.value.trim();
-    const contentImages = (imageInput.files[0] || [])
-            .map(file => file.name);
+    const contentImages = (imageInput.files || [])
 
     if (!title) {
         formError.textContent = '제목을 입력해주세요.';
@@ -87,15 +100,29 @@ postCreateForm.addEventListener('submit', async (event) => {
     submitButton.disabled = true;
     submitButton.setAttribute('aria-disabled', 'true');
     
-    const articleData = {title, content, contentImages}
+    const ImageUrls = await uploadContentImages(contentImages)
+
+    const articleData = {title, content, contentImageUrls: ImageUrls.data.fileUrls};
     const result = await createArticle(articleData);
 
     updateFormState();
 
     const articleId = result.data.articleId;
-    window.setTimeout(() => {
-        window.location.assign(`./detail.html?id=${encodeURIComponent(articleId)}`);
-    }, 500);
+    console.log(`게시글 작성 완료: ${articleId}`);
+    // window.setTimeout(() => {
+    //     window.location.assign(`./detail.html?id=${encodeURIComponent(articleId)}`);
+    // }, 500);
 });
 
 updateFormState();
+async function initializePage() {
+    try {
+        await refreshAccessToken();
+        updateFormState();
+    } catch (error) {
+        console.error(error);
+        // window.location.replace("../auth/login.html");
+    }
+}
+
+initializePage();

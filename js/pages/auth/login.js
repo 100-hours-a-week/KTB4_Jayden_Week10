@@ -1,3 +1,5 @@
+import { setAccessToken } from '../../common/auth.js';
+
 const loginForm = document.querySelector('.login-form');
 
 const emailField = document.querySelector('.form-field--email');
@@ -83,13 +85,16 @@ loginForm.addEventListener('submit', async (event) => {
     const response = await fetch('http://localhost:8080/auth/login', 
         {
             method : 'POST',
+            credentials: "include",
             headers: { 'Content-Type': 'application/json' },
             body : JSON.stringify({email, password})
         }
     );
     const result = await response.json();
-    const token = result.data;
+    const token = result.data.token.accessToken;
     if (!token) loginForm.classList.add('is-error', true);
+
+    setAccessToken(token);
 
     loginState();
 

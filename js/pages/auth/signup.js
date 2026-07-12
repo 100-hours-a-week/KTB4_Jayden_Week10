@@ -125,6 +125,21 @@ async function signup(signupData) {
     return response.json();
 }
 
+async function uploadProfileImage(profileImage) {
+    if (!profileImage) return {data: {fileUrl: null}};
+    const formData = new FormData();
+    formData.append('profileImage', profileImage);
+    const response = await fetch('http://localhost:8080/users/me/profile-image',
+        {
+            method : 'POST', 
+            body: formData
+        }
+    );
+
+    if (!response.ok) return new Error('이미지 업로드 실패');
+    return response.json();
+}
+
 
 signupForm.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -136,9 +151,10 @@ signupForm.addEventListener('submit', async (event) => {
     const passwordConfirm = passwordConfirmInput.value.trim();
     const nickname = nicknameInput.value.trim();
     const profileImage = imageInput.files[0] || null;
-    const profileName = profileImage ? profileImage.name : null;
 
-    const signupData = {email, password, nickname, profileImage : profileName}
+    const profileResult = await uploadProfileImage(profileImage);
+
+    const signupData = {email, password, nickname, profileImageUrl : profileResult.data.fileUrl}
     const result = await signup(signupData);
 
     signupFormState();
