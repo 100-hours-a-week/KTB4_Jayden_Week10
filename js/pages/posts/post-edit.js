@@ -17,12 +17,52 @@ const submitButton = document.querySelector('.post-edit-button');
 
 const formError = document.querySelector('.post-edit-error');
 
+let existingImageUrls = [];
 let previewUrls = [];
 
 
 backButton.addEventListener('click', () => {
     window.location.assign(`./detail.html?id=${articleId}`);
 });
+
+function renderExistingImages() {
+    imagePreviewList.replaceChildren();
+
+    existingImageUrls.forEach((imageUrl, index) => {
+        const item = document.createElement('li');
+        const image = document.createElement('img');
+
+        image.src = imageUrl;
+        image.alt = `기존 게시글 이미지 ${index + 1}`;
+
+        item.append(image);
+        imagePreviewList.append(item);
+    });
+
+    const hasImages = existingImageUrls.length > 0;
+
+    imagePreviewList.hidden = !hasImages;
+    postEditForm.classList.toggle('has-image', hasImages);
+    postEditForm.classList.toggle('has-no-image', !hasImages);
+
+    imageGuide.textContent = hasImages
+        ? `${existingImageUrls.length}개의 기존 이미지가 있습니다.`
+        : '파일을 선택해주세요.';
+}
+
+function updateImageState() {
+    const newFiles = Array.from(imageInput.files || []);
+    const totalImageCount = existingImageUrls.length + newFiles.length;
+    const hasImages = totalImageCount > 0;
+
+    postEditForm.classList.toggle('has-image', hasImages);
+    postEditForm.classList.toggle('has-no-image', !hasImages);
+
+    imagePreviewList.hidden = !hasImages;
+
+    imageGuide.textContent = hasImages ? 
+            `총 ${totalImageCount}개의 이미지가 선택되었습니다.` : '파일을 선택해주세요.';
+}
 
 async function fetchArticle() {
     try {
@@ -34,20 +74,15 @@ async function fetchArticle() {
 
         const result = await response.json();
         const article = result.data;
-        const existingImages = article.contentImageUrls || [];
-
+    
         titleInput.value = article.title;
         contentInput.value = article.content;
 
-        existingImages.forEach((url) => {
-        previewUrls.push(url);
-        const item = document.createElement('li');
-        const image = document.createElement('img');
-        image.src = url;
-        image.alt = `${url.name} 미리보기`;
-        item.append(image);
-        imagePreviewList.append(item);
-        });
+        existingImageUrls = Array.isArray(article.contentImageUrls) ?
+                [...article.contentImageUrls] : [];
+
+        renderExistingImages();
+
     } catch (error) {
         console.error(error);
         // alert('게시글 정보를 불러오지 못했습니다.');
@@ -66,12 +101,13 @@ function updateFormState() {
 }
 
 async function updateArticle(articleData) {
-    const formData = new FormData();
-    const response = await authFetch(`http://localhost:8080/articles/${articleId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify( { ...articleData} )
-    });
+    const response = await authFetch(`http://localhost:8080/articles/${articleId}`, 
+        {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({...articleData})
+        }
+    );
 
     if (!response.ok) throw new Error("게시글 작성 실패");
     return response.json();
@@ -81,7 +117,8 @@ titleInput.addEventListener('input', updateFormState);
 contentInput.addEventListener('input', updateFormState);
 
 async function uploadContentImages(contentImages) {
-    if (!contentImages) return {data: {fileUrls: null}};
+    if (!contentImages || contentImages.length === 0) return [];
+    
     const formData = new FormData();
     
     for (const file of contentImages) {
@@ -94,32 +131,46 @@ async function uploadContentImages(contentImages) {
         }
     );
 
-    if (!response.ok) return new Error('이미지 업로드 실패');
-    return response.json();
+    if (!response.ok) throw new Error('이미지 업로드 실패');
+    const result = await response.json();
+    return result.data?.fileUrls ?? [];
 }
 
 imageInput.addEventListener('change', (e) => {
+    previewUrls.forEach((url) => {
+        URL.revokeObjectURL(url);
+    });
+
+    previewUrls = [];
+    
     const files = Array.from(imageInput.files || []);
-    const hasImages = files.length > 0;
 
-    postEditForm.classList.toggle('has-image', hasImages);
-    postEditForm.classList.toggle('has-no-image', !hasImages);
+    if (files.length === 0) {
+        renderExistingImages();
+        return;
+    }
 
-    imagePreviewList.hidden = !hasImages;
-    imageGuide.textContent = hasImages ? `${files.length}개의 이미지가 선택되었습니다.` : '파일을 선택해주세요.';
+    imagePreviewList.replaceChildren();
 
     files.forEach((file) => {
-        const url = URL.createObjectURL(file);
-        previewUrls.push(url);
+        const previewUrl = URL.createObjectURL(file);
+        previewUrls.push(previewUrl);
+
         const item = document.createElement('li');
         const image = document.createElement('img');
-        image.src = url;
+
+        image.src = previewUrl;
         image.alt = `${file.name} 미리보기`;
+
         item.append(image);
         imagePreviewList.append(item);
     });
 
+    imagePreviewList.hidden = false;
+    postEditForm.classList.add('has-image');
+    postEditForm.classList.remove('has-no-image');
 
+    imageGuide.textContent = `${files.length}개의 이미지가 선택되었습니다.`;
 });
 
 postEditForm.addEventListener('submit', async (event) => {
@@ -136,18 +187,21 @@ postEditForm.addEventListener('submit', async (event) => {
     
     submitButton.disabled = true;
     submitButton.setAttribute('aria-disabled', 'true');
-
-    const ImageUrls = await uploadContentImages(contentImages)
     
-    const articleData = {title, content, contentImageUrls: ImageUrls.data.fileUrls}
+    const articleData = {title, content, };
+    articleData.contentImageUrls = [];
+    
+    if (contentImages.length > 0) {
+        articleData.contentImageUrls = await uploadContentImages(contentImages);
+    }
+
     const result = await updateArticle(articleData);
 
     updateFormState();
 
     const articleId = result.data.articleId;
-    window.setTimeout(() => {
-        window.location.assign(`./detail.html?id=${encodeURIComponent(articleId)}`);
-    }, 500);
+
+    window.location.assign(`./detail.html?id=${encodeURIComponent(articleId)}`);
 });
 
 async function initializePage() {
