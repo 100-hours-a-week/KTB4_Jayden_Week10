@@ -1,9 +1,10 @@
-import { fetchUserProfile } from './fetch.js';
+import { fetchUserProfile, logoutRequest } from './fetch.js';
 import {DEFAULT_PROFILE_IMAGE} from '../constants/default.js'
 
 const profileImage = document.querySelector('[data-profile-image]');
 const profileButton = document.querySelector('[data-account-menu-trigger]');
 const userMenuList = document.getElementById('account-menu-list');
+const logoutButton = document.querySelector('[logout-a]')
 
 
 async function loadUserProfile() {
@@ -23,6 +24,13 @@ async function loadUserProfile() {
 
 profileButton.addEventListener('click', () => {
     userMenuList.hidden = !userMenuList.hidden;
+});
+
+logoutButton.addEventListener('click', async () => {
+    const response = await logoutRequest();
+    if (!response.ok) throw new Error('로그아웃 실패')
+
+    window.location.assign('../auth/login.html');
 });
 
 loadUserProfile();

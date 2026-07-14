@@ -16,6 +16,13 @@ export const loginRequest = (email, password) => fetch(
             body : JSON.stringify({email, password})
         }
     );
+    
+export const logoutRequest = () => authFetch(
+        `${API_BASE_URL}/auth/logout`, 
+        {
+            method : 'POST',
+        }
+    );
 
 
 
