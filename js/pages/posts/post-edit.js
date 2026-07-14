@@ -1,4 +1,5 @@
-import { authFetch, refreshAccessToken } from '../../common/auth.js';
+import { refreshAccessToken } from '../../common/auth.js';
+import { fetchArticleRequest, updateArticleRequest, uploadContentImagesRequest } from '../../common/fetch.js';
 
 const postEditForm = document.querySelector('.post-edit-form');
 
@@ -66,7 +67,7 @@ function updateImageState() {
 
 async function fetchArticle() {
     try {
-        const response = await authFetch(`http://localhost:8080/articles/${articleId}`);
+        const response = await fetchArticleRequest(articleId);
 
         if (!response.ok) {
         throw new Error('게시글 조회 실패');
@@ -101,15 +102,9 @@ function updateFormState() {
 }
 
 async function updateArticle(articleData) {
-    const response = await authFetch(`http://localhost:8080/articles/${articleId}`, 
-        {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({...articleData})
-        }
-    );
+    const response = await updateArticleRequest(articleId, articleData);
 
-    if (!response.ok) throw new Error("게시글 작성 실패");
+    if (!response.ok) throw new Error("게시글 수정 실패");
     return response.json();
 }
 
@@ -124,24 +119,24 @@ async function uploadContentImages(contentImages) {
     for (const file of contentImages) {
         formData.append('contentImages', file);
     }
-    const response = await authFetch('http://localhost:8080/articles/content-image',
-        {
-            method : 'POST', 
-            body: formData
-        }
-    );
+    const response = await uploadContentImagesRequest(formData);
 
     if (!response.ok) throw new Error('이미지 업로드 실패');
     const result = await response.json();
     return result.data?.fileUrls ?? [];
 }
 
-imageInput.addEventListener('change', (e) => {
+function clearPreviewUrls() {
     previewUrls.forEach((url) => {
         URL.revokeObjectURL(url);
     });
 
     previewUrls = [];
+    imagePreviewList.replaceChildren();
+}
+
+imageInput.addEventListener('change', (e) => {
+    clearPreviewUrls();
     
     const files = Array.from(imageInput.files || []);
 
@@ -202,6 +197,12 @@ postEditForm.addEventListener('submit', async (event) => {
     const articleId = result.data.articleId;
 
     window.location.assign(`./detail.html?id=${encodeURIComponent(articleId)}`);
+});
+
+window.addEventListener('beforeunload', () => {
+    previewUrls.forEach((url) => {
+        URL.revokeObjectURL(url);
+    });
 });
 
 async function initializePage() {

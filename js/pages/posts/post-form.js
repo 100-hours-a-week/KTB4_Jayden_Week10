@@ -1,4 +1,5 @@
-import {refreshAccessToken, authFetch } from "../../common/auth.js";
+import {refreshAccessToken } from "../../common/auth.js";
+import { createArticleRequest, uploadContentImagesRequest } from "../../common/fetch.js";
 
 const postCreateForm = document.querySelector('.post-create-form');
 
@@ -30,13 +31,7 @@ function updateFormState() {
 
 async function createArticle(articleData) {
 
-    const response = await authFetch('http://localhost:8080/articles', 
-        {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify( { ...articleData } )
-        }
-);
+    const response = await createArticleRequest(articleData);
 
     if (!response.ok) throw new Error("게시글 작성 실패");
     return response.json();
@@ -52,18 +47,24 @@ async function uploadContentImages(contentImages) {
     for (const file of contentImages) {
         formData.append('contentImages', file);
     }
-    const response = await authFetch('http://localhost:8080/articles/content-image',
-        {
-            method : 'POST', 
-            body: formData
-        }
-    );
+    const response = await uploadContentImagesRequest(formData);
 
     if (!response.ok) return new Error('이미지 업로드 실패');
     return response.json();
 }
 
+function clearPreviewUrls() {
+    previewUrls.forEach((url) => {
+        URL.revokeObjectURL(url);
+    });
+
+    previewUrls = [];
+    imagePreviewList.replaceChildren();
+}
+
 imageInput.addEventListener('change', (e) => {
+    clearPreviewUrls();
+
     const files = Array.from(imageInput.files || []);
     const hasImages = files.length > 0;
 
@@ -112,6 +113,12 @@ postCreateForm.addEventListener('submit', async (event) => {
     window.setTimeout(() => {
         window.location.assign(`./detail.html?id=${encodeURIComponent(articleId)}`);
     }, 500);
+});
+
+window.addEventListener('beforeunload', () => {
+    previewUrls.forEach((url) => {
+        URL.revokeObjectURL(url);
+    });
 });
 
 updateFormState();

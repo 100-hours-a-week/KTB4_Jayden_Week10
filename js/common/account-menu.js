@@ -1,4 +1,4 @@
-import { getAccessToken, authFetch } from './auth.js';
+import { fetchUserProfile} from './fetch.js';
 
 const profileImage = document.querySelector('[data-profile-image]');
 const profileButton = document.querySelector('[data-account-menu-trigger]');
@@ -10,11 +10,7 @@ const DEFAULT_PROFILE_IMAGE = "../../assets/images/default-profile.svg"
 async function loadUserProfile() {
     if (!profileImage) return;
 
-    const response = await authFetch('http://localhost:8080/users/me',
-        {
-            method: 'GET'
-        }
-    );
+    const response = await fetchUserProfile;
 
     if (!response.ok) throw new Error('사용자 정보 조회 실패');
 

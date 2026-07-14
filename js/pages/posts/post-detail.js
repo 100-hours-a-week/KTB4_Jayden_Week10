@@ -1,4 +1,5 @@
-import { refreshAccessToken, authFetch } from '../../common/auth.js';
+import { refreshAccessToken } from '../../common/auth.js';
+import { fetchArticleRequest, deleteArticleRequest, likeRequest, unlikeRequest, incrementViewCountRequest, createCommentRequest, fetchCommentsRequest, editCommentRequest, deleteCommentRequest} from '../../common/fetch.js';
 
 const articleView = document.querySelector('[data-article-view]');
 
@@ -90,7 +91,7 @@ function createGallerySlide(src, index) {
     image.className = 'gallery-image';
     image.src = src;
     image.alt = `게시글 이미지 ${index + 1}`;
-    image.dataset.galleyImage = '';
+    image.dataset.galleryImage = '';
     image.dataset.fallbackSrc = fallbackImageSrc;
 
     figure.className = `gallery-slide${index === 0 ? ' is-active' : ''}`;
@@ -127,7 +128,7 @@ function renderGallery(images = []) {
 
 
 async function fetchArticle() {
-    const response = await authFetch(`http://localhost:8080/articles/${articleId}`);
+    const response = await fetchArticleRequest(articleId);
     const payload = await response.json();
     const article = payload.data;
 
@@ -169,12 +170,8 @@ likeButton.addEventListener('click', async () => {
     const currentCount = Number(likeCount.dataset.count);
     const next = Math.max(0, currentCount + (likeOn ? -1 : 1));
 
-    const response = likeOn ? await authFetch(`http://localhost:8080/likes/articles/${articleId}`, {
-        method: 'DELETE'
-    }) : 
-        await authFetch(`http://localhost:8080/likes/articles/${articleId}`, {
-            method: 'POST'
-        });
+    const response = likeOn ? await unlikeRequest(articleId) : 
+        await likeRequest(articleId);
 
     likeButton.setAttribute('aria-pressed', String(!likeOn));
     likeCount.dataset.count = String(next);
@@ -188,20 +185,14 @@ document.querySelector('[data-post-delete-open]').addEventListener('click', () =
 });
 document.querySelector('[data-post-delete-confirm]').addEventListener('click', async () => {
 
-    const response = await authFetch(`http://localhost:8080/articles/${articleId}`, {
-        method: 'DELETE',
-    });
+    const response = await deleteArticleRequest(articleId);
     window.location.assign('./list.html');
 });
 
 postDeleteModal.addEventListener('close', () => postDeleteModal.classList.remove('is-active'));
 
 async function incrementViewCount() {
-    const result = await authFetch(`http://localhost:8080/views/articles/${articleId}`,
-        {
-            method : 'POST'
-        }
-    );
+    const result = await incrementViewCountRequest(articleId);
 }
 
 
@@ -223,11 +214,7 @@ commentForm.addEventListener('submit', async (event) => {
     
     if (!commentText) return; 
 
-    const response = await authFetch(`http://localhost:8080/articles/${articleId}/comments`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({commentText, parentCommentId})
-    });
+    const response = await createCommentRequest(articleId, commentText, parentCommentId);
 
     updateCommentForm();
 });
@@ -321,12 +308,16 @@ async function fetchComments({ reset = false } = {}) {
     try {
         const lastCommentQuery = lastCommentId == null ? '' : `&lastCommentId=${lastCommentId}`;
         const lastParentCommentQuery = lastParentCommentId == null ? '' : `&lastParentCommentId=${lastParentCommentId}`;
-        const response = await authFetch(`http://localhost:8080/articles/${articleId}/comments?pageSize=${commentPageSize}${lastCommentQuery}${lastParentCommentQuery}`);
+        const response = await fetchCommentsRequest(articleId, commentPageSize, lastCommentQuery, lastParentCommentQuery);
         const comments = await response.json();
         const commentArray = Array.isArray(comments.data) ? comments.data : [];
 
-        if (commentArray.length === 0 && isFirstLoad) {
-            setState('is-empty');
+        if (commentArray.length === 0) {
+            hasNext = false;
+
+            if (isFirstLoad) {
+                setState('is-empty');
+            }
             return;
         }
 
@@ -398,20 +389,12 @@ commentList.addEventListener('submit', async (event) => {
     const nextCommentText = editInput.value.trim();
 
     editError.hidden = true;
-    const response = await authFetch(`http://localhost:8080/articles/${articleId}/comments/${commentId}`, 
-        {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({commentText: nextCommentText})
-        }
-    );
+    const response = await editCommentRequest(articleId, commentId, nextCommentText);
 });
 
 document.querySelector('[data-comment-delete-confirm]').addEventListener('click', async (event) => {
     const commentId = pendingDeleteComment.dataset.commentId;
-    const response = await authFetch(`http://localhost:8080/articles/${articleId}/comments/${commentId}`, 
-        { method: 'DELETE' }
-    );
+    const response = await deleteCommentRequest(articleId, commentId);
 });
 
 commentDeleteModal.addEventListener('close', () => commentDeleteModal.classList.remove('is-active'));

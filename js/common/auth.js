@@ -1,3 +1,6 @@
+import {API_BASE_URL} from '../constants/api.js';
+
+
 let accessToken = null;
 let refreshPromise = null;
 
@@ -29,7 +32,7 @@ export async function refreshAccessToken() {
 
 async function requestRefreshToken() {
     const response = await fetch(
-        'http://localhost:8080/auth/token/refresh',
+        `${API_BASE_URL}/auth/token/refresh`,
         {
             method: 'POST',
             credentials: 'include'

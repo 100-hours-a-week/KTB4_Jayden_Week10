@@ -1,4 +1,5 @@
-import {refreshAccessToken, authFetch} from '../../common/auth.js';
+import {refreshAccessToken} from '../../common/auth.js';
+import {updatePasswordRequest} from '../../common/fetch.js';
 
 const passwordUpdateForm = document.querySelector('.password-edit-form');
 
@@ -77,13 +78,7 @@ passwordUpdateForm.addEventListener('submit', async (event) => {
 
     if (updateButton.disabled) return;
 
-    const result = await authFetch(`http://localhost:8080/users/me/password`,
-        {
-            method : 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify( { password } )
-        }
-    );
+    const result = await updatePasswordRequest(password);
 
     window.setTimeout(() => {
         updateButtonState();

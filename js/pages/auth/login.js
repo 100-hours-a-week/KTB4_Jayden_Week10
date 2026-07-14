@@ -1,4 +1,5 @@
 import { setAccessToken } from '../../common/auth.js';
+import { loginRequest } from '../../common/fetch.js';
 
 const loginForm = document.querySelector('.login-form');
 
@@ -82,14 +83,7 @@ loginForm.addEventListener('submit', async (event) => {
     
     if (loginButton.disabled) return;
     
-    const response = await fetch('http://localhost:8080/auth/login', 
-        {
-            method : 'POST',
-            credentials: "include",
-            headers: { 'Content-Type': 'application/json' },
-            body : JSON.stringify({email, password})
-        }
-    );
+    const response = await loginRequest(email, password);
     const result = await response.json();
     const token = result.data.token.accessToken;
     if (!token) loginForm.classList.add('is-error', true);

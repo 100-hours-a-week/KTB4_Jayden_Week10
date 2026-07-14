@@ -1,4 +1,5 @@
 import { refreshAccessToken, authFetch } from '../../common/auth.js';
+import { fetchArticlesRequest } from '../../common/fetch.js';
 
 const feed = document.querySelector('.article-feed');
 const list = document.querySelector('[data-list-content]');
@@ -119,16 +120,16 @@ async function fetchArticles() {
 
     try {
         const appendLastArticleId = isFirstLoad ? '' : `&lastArticleId=${lastArticleId}`;
-        const response = await authFetch(`http://localhost:8080/articles?pageSize=${pageSize}${appendLastArticleId}`);
+        const response = await fetchArticlesRequest(pageSize, appendLastArticleId);
         const articles = await response.json();
         const articleArray = Array.isArray(articles.data) ? articles.data : [];
 
-        if (articleArray.length === 0 && isFirstLoad) {
-            setState('is-empty');
-            return;
-        }
-        if (articleArray.length === 0 && !isFirstLoad) {
-            setState('is-empty');
+        if (articleArray.length === 0) {
+            hasNext = false;
+            
+            if (isFirstLoad) {
+                setState('is-empty');
+            }
             return;
         }
 

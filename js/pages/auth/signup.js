@@ -1,3 +1,5 @@
+import { signupRequest, uploadProfileImageRequest } from '../../common/fetch.js';
+
 const signupForm = document.querySelector('.signup-form');
 const submitButton = document.querySelector('.signup-button');
 const submitLabel = document.querySelector('.signup-button__label');
@@ -92,6 +94,12 @@ imageInput.addEventListener('change', (e) => {
 
     profilePreview.src = URL.createObjectURL(file);
     profileUpload.classList.add('has-image');
+    
+    profilePreview.addEventListener('load', () => {
+        URL.revokeObjectURL(profilePreview.src);
+    },
+    { once: true }
+    );
 });
 
 
@@ -113,13 +121,7 @@ nicknameInput.addEventListener('input', () => {
 });
 
 async function signup(signupData) {
-    const response = await fetch('http://localhost:8080/users',
-        {
-            method : 'POST', 
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({...signupData})
-        }
-    );
+    const response = await signupRequest(signupData);
 
     if (!response.ok) return new Error('회원 가입 실패');
     return response.json();
@@ -129,12 +131,7 @@ async function uploadProfileImage(profileImage) {
     if (!profileImage) return {data: {fileUrl: null}};
     const formData = new FormData();
     formData.append('profileImage', profileImage);
-    const response = await fetch('http://localhost:8080/users/me/profile-image',
-        {
-            method : 'POST', 
-            body: formData
-        }
-    );
+    const response = await uploadProfileImageRequest(formData);
 
     if (!response.ok) return new Error('이미지 업로드 실패');
     return response.json();

@@ -1,4 +1,5 @@
-import {authFetch, refreshAccessToken} from '../../common/auth.js';
+import {refreshAccessToken} from '../../common/auth.js';
+import { fetchUserRequest, updateUserInfoRequest, deleteUserRequest } from '../../common/fetch.js';
 
 const profileEditForm = document.querySelector('.profile-edit-form');
 
@@ -23,7 +24,7 @@ const NICKNAME_REGEX = /^[ㄱ-ㅎ가-힣a-zA-Z0-9_-]{2,10}$/;
 const touched = {nickname : false}
 
 async function fetchUserInfo() {
-    const result = await authFetch(`http://localhost:8080/users/me`);
+    const result = await fetchUserRequest;
     const payload = await result.json();
     const userInfo = payload.data;
 
@@ -76,18 +77,19 @@ imageInput.addEventListener('change', (e) => {
 
     profilePreview.src = URL.createObjectURL(file);
     profileUpload.classList.add('has-image');
+
+    profilePreview.addEventListener('load', () => {
+        URL.revokeObjectURL(profilePreview.src);
+    },
+    { once: true }
+    );
 });
 
 async function uploadProfileImage(profileImage) {
     if (!profileImage) return {data: {fileUrl: profilePreview.src}};
     const formData = new FormData();
     formData.append('profileImage', profileImage);
-    const response = await authFetch('http://localhost:8080/users/me/profile-image',
-        {
-            method : 'POST', 
-            body: formData
-        }
-    );
+    const response = await uploadProfileImageRequest(formData);
 
     if (!response.ok) return new Error('이미지 업로드 실패');
     return response.json();
@@ -107,13 +109,7 @@ profileEditForm.addEventListener('submit', async (event) => {
 
     const profileResult = await uploadProfileImage(profileImage);
 
-    const result = await authFetch(`http://localhost:8080/users/me`,
-        {
-            method : 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify( { nickname, profileImageUrl : profileResult.data.fileUrl } )
-        }
-    );
+    const result = await updateUserInfoRequest(nickname, profileResult.data.fileUrl);
 
 
     window.setTimeout(() => {
@@ -139,11 +135,7 @@ withdrawModal.addEventListener('close', () => {
 });
 withdrawConfirmButton.addEventListener('click', async () => {
 
-        const result = await authFetch(`http://localhost:8080/users/me`,
-        {
-            method : 'DELETE'
-        }
-    );
+        const result = await deleteUserRequest;
 
     window.location.assign('../auth/login.html');
 });
