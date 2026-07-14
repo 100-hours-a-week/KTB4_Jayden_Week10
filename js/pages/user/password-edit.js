@@ -1,3 +1,5 @@
+import { TIME } from '../../constants/time.js';
+import { REGEX } from '../../constants/regex.js';
 import {refreshAccessToken} from '../../common/auth.js';
 import {updatePasswordRequest} from '../../common/fetch.js';
 
@@ -13,8 +15,12 @@ const updateButton = document.querySelector('.password-save-button');
 
 const toast = document.querySelector('.password-toast');
 
-const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9])\S{8,20}$/;
+const PASSWORD_REGEX = REGEX.PASSWORD_REGEX;
 const touched = {password : false, passwordConfirm : false}
+
+const TOAST_LASTING_TIME = TIME.TOAST_LASTING_TIME;
+const TOAST_POPUP_TIME = TIME.TOAST_POPUP_TIME;
+
 
 /**
  * input 검증
@@ -87,8 +93,8 @@ passwordUpdateForm.addEventListener('submit', async (event) => {
         window.setTimeout(() => {
             toast.classList.remove('is-active');
             toast.hidden = true;
-        }, 3000);
-    }, 500);
+        }, TOAST_LASTING_TIME);
+    }, TOAST_POPUP_TIME);
 });
 
 async function initializePage() {

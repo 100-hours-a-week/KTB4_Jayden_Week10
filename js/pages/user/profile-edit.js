@@ -1,3 +1,5 @@
+import { TIME } from '../../constants/time.js';
+import { REGEX } from '../../constants/regex.js';
 import {refreshAccessToken} from '../../common/auth.js';
 import { fetchUserRequest, updateUserInfoRequest, deleteUserRequest } from '../../common/fetch.js';
 
@@ -20,8 +22,13 @@ const withdrawConfirmButton = document.querySelector('[data-withdraw-confirm]');
 
 const toast = document.querySelector('.profile-toast');
 
-const NICKNAME_REGEX = /^[ㄱ-ㅎ가-힣a-zA-Z0-9_-]{2,10}$/;
+const NICKNAME_REGEX = REGEX.NICKNAME_REGEX
 const touched = {nickname : false}
+
+const TOAST_LASTING_TIME = TIME.TOAST_LASTING_TIME;
+const TOAST_POPUP_TIME = TIME.TOAST_POPUP_TIME;
+
+
 
 async function fetchUserInfo() {
     const result = await fetchUserRequest;
@@ -61,7 +68,7 @@ function updateButtonState() {
 
     const result = nicknameInputState();
     
-    renderField(nicknameField, nicknameInput, result, touched);
+    renderField(nicknameField, nicknameInput, result, touched.nickname);
 
     const isValid = result.valid
 
@@ -119,8 +126,8 @@ profileEditForm.addEventListener('submit', async (event) => {
         window.setTimeout(() => {
             toast.classList.remove('is-active');
             toast.hidden = true;
-        }, 3000);
-    }, 500);
+        }, TOAST_LASTING_TIME);
+    }, TOAST_POPUP_TIME);
 });
 
 

@@ -1,3 +1,4 @@
+import { PAGINATION } from '../../constants/pagination.js';
 import { refreshAccessToken, authFetch } from '../../common/auth.js';
 import { fetchArticlesRequest } from '../../common/fetch.js';
 
@@ -14,7 +15,9 @@ let isFirstLoad = true;
 let hasNext = true;
 let lastArticleId = null;
 
-const pageSize = 10;
+const pageSize = PAGINATION.POST_PAGE_SIZE;
+const scrollThreshold = PAGINATION.SCROLL_THRESHOLD;
+
 const articleImageFieldNames = ['thumbnailImage', 'thumbnailUrl', 'imageUrl', 'contentImage', 'contentImageUrl','contentImageUrls', 'contentImages', 'articleImage', 'articleImageUrl', 'firstImage'];
 const articleImageEvents = {
     load: 'load',
@@ -152,7 +155,7 @@ async function fetchArticles() {
 
 window.addEventListener('scroll', () => {
     if (isFetching) return;
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 10) {
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - scrollThreshold) {
         fetchArticles();
     }
 });

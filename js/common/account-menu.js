@@ -17,7 +17,7 @@ async function loadUserProfile() {
     const responseBody = await response.json();
     const profileUrl = responseBody.data.profileImageUrl;
 
-    profileImage.src = profileUrl;
+    profileImage.src = profileUrl || DEFAULT_PROFILE_IMAGE;
     profileImage.alt = `${responseBody.data.nickname}님의 프로필 이미지`
 }
 

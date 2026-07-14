@@ -1,3 +1,4 @@
+import { REGEX } from '../../constants/regex.js';
 import { signupRequest, uploadProfileImageRequest } from '../../common/fetch.js';
 
 const signupForm = document.querySelector('.signup-form');
@@ -21,9 +22,9 @@ const nicknameField = document.querySelector('.form-field--nickname');
 /**
  * input 검증
  */
-const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9])\S{8,20}$/;
-const NICKNAME_REGEX = /^[ㄱ-ㅎ가-힣a-zA-Z0-9_-]{2,10}$/;
+const EMAIL_REGEX = REGEX.EMAIL_REGEX;
+const PASSWORD_REGEX = REGEX.PASSWORD_REGEX;
+const NICKNAME_REGEX = REGEX.NICKNAME_REGEX;
 const touched = { email: false, password: false, passwordConfirm: false, nickname: false };
 
 function emailInputState() {

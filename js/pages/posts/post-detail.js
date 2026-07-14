@@ -1,3 +1,4 @@
+import { PAGINATION } from '../../constants/pagination.js';
 import { refreshAccessToken } from '../../common/auth.js';
 import { fetchArticleRequest, deleteArticleRequest, likeRequest, unlikeRequest, incrementViewCountRequest, createCommentRequest, fetchCommentsRequest, editCommentRequest, deleteCommentRequest} from '../../common/fetch.js';
 
@@ -51,7 +52,8 @@ let isFirstLoad = true;
 let lastParentCommentId = null;
 let lastCommentId = null;
 
-let commentPageSize = 10;
+const commentPageSize = PAGINATION.COMMENT_PAGE_SIZE;
+const scrollThreshold = PAGINATION.SCROLL_THRESHOLD;
 
 const fallbackImageSrc = document.querySelector('[data-gallery-image]')?.dataset.fallbackSrc || '../../assets/images/empty-posts.svg';
 
@@ -402,7 +404,7 @@ commentDeleteModal.addEventListener('close', () => commentDeleteModal.classList.
 
 window.addEventListener('scroll', () => {
     if (isFetching) return;
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 10) {
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - scrollThreshold) {
         fetchComments();
     }
 });

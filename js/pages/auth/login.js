@@ -1,3 +1,4 @@
+import { REGEX } from '../../constants/regex.js';
 import { setAccessToken } from '../../common/auth.js';
 import { loginRequest } from '../../common/fetch.js';
 
@@ -16,8 +17,8 @@ const loginLabel = document.querySelector('.login-button__label')
  * input 검증
  */
 
-const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9])\S{8,20}$/;
+const EMAIL_REGEX = REGEX.EMAIL_REGEX;
+const PASSWORD_REGEX = REGEX.PASSWORD_REGEX;
 const touched = { email: false, password: false };
 
 function emailInputState() {
