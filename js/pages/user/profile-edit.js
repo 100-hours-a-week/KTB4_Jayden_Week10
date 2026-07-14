@@ -1,5 +1,6 @@
 import { TIME } from '../../constants/time.js';
 import { REGEX } from '../../constants/regex.js';
+import {DEFAULT_PROFILE_IMAGE} from '../../constants/default.js'
 import {refreshAccessToken} from '../../common/auth.js';
 import { fetchUserRequest, updateUserInfoRequest, deleteUserRequest } from '../../common/fetch.js';
 
@@ -28,16 +29,14 @@ const touched = {nickname : false}
 const TOAST_LASTING_TIME = TIME.TOAST_LASTING_TIME;
 const TOAST_POPUP_TIME = TIME.TOAST_POPUP_TIME;
 
-
-
 async function fetchUserInfo() {
-    const result = await fetchUserRequest;
+    const result = await fetchUserRequest();
     const payload = await result.json();
     const userInfo = payload.data;
 
     email.textContent = userInfo.email;
     nicknameInput.value = userInfo.nickname;
-    profilePreview.src = userInfo.profileImageUrl ? userInfo.profileImageUrl : "../../assets/images/default-profile.svg";
+    profilePreview.src = userInfo.profileImageUrl ? userInfo.profileImageUrl : DEFAULT_PROFILE_IMAGE;
 }
 
 function nicknameInputState() {
@@ -102,7 +101,10 @@ async function uploadProfileImage(profileImage) {
     return response.json();
 }
 
-nicknameInput.addEventListener('input', updateButtonState);
+nicknameInput.addEventListener('input', () => {
+    touched.nickname = true;
+    updateButtonState();
+});
 
 profileEditForm.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -118,6 +120,7 @@ profileEditForm.addEventListener('submit', async (event) => {
 
     const result = await updateUserInfoRequest(nickname, profileResult.data.fileUrl);
 
+    if (!result.ok) throw new Error('회원정보 수정 실패');
 
     window.setTimeout(() => {
         updateButtonState();
@@ -142,7 +145,9 @@ withdrawModal.addEventListener('close', () => {
 });
 withdrawConfirmButton.addEventListener('click', async () => {
 
-        const result = await deleteUserRequest;
+    const result = await deleteUserRequest();
+    
+    if (!result.ok) throw new Error('회원 탈퇴 실패');
 
     window.location.assign('../auth/login.html');
 });

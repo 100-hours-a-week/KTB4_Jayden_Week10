@@ -131,6 +131,7 @@ function renderGallery(images = []) {
 
 async function fetchArticle() {
     const response = await fetchArticleRequest(articleId);
+    if (!response.ok) throw new Error('게시글 조회 실패')
     const payload = await response.json();
     const article = payload.data;
 
@@ -175,6 +176,9 @@ likeButton.addEventListener('click', async () => {
     const response = likeOn ? await unlikeRequest(articleId) : 
         await likeRequest(articleId);
 
+    if (!response.ok) throw new Error('좋아요 수정 실패');
+
+
     likeButton.setAttribute('aria-pressed', String(!likeOn));
     likeCount.dataset.count = String(next);
     likeCount.textContent = formatCount(next);
@@ -188,6 +192,9 @@ document.querySelector('[data-post-delete-open]').addEventListener('click', () =
 document.querySelector('[data-post-delete-confirm]').addEventListener('click', async () => {
 
     const response = await deleteArticleRequest(articleId);
+
+    if (!response.ok) throw new Error('게시글 삭제 실패');
+
     window.location.assign('./list.html');
 });
 
@@ -195,6 +202,8 @@ postDeleteModal.addEventListener('close', () => postDeleteModal.classList.remove
 
 async function incrementViewCount() {
     const result = await incrementViewCountRequest(articleId);
+
+    if (!result.ok) throw new Error('조회수 수정 실패');
 }
 
 
@@ -217,6 +226,8 @@ commentForm.addEventListener('submit', async (event) => {
     if (!commentText) return; 
 
     const response = await createCommentRequest(articleId, commentText, parentCommentId);
+
+    if (!response.ok) throw new Error('댓글 생성 실패');
 
     updateCommentForm();
 });
@@ -311,6 +322,8 @@ async function fetchComments({ reset = false } = {}) {
         const lastCommentQuery = lastCommentId == null ? '' : `&lastCommentId=${lastCommentId}`;
         const lastParentCommentQuery = lastParentCommentId == null ? '' : `&lastParentCommentId=${lastParentCommentId}`;
         const response = await fetchCommentsRequest(articleId, commentPageSize, lastCommentQuery, lastParentCommentQuery);
+        if (!response.ok) throw new Error('댓글 목록 조회 실패');
+
         const comments = await response.json();
         const commentArray = Array.isArray(comments.data) ? comments.data : [];
 
@@ -392,11 +405,14 @@ commentList.addEventListener('submit', async (event) => {
 
     editError.hidden = true;
     const response = await editCommentRequest(articleId, commentId, nextCommentText);
+    if (!response.ok) throw new Error('댓글 수정 실패');
+
 });
 
 document.querySelector('[data-comment-delete-confirm]').addEventListener('click', async (event) => {
     const commentId = pendingDeleteComment.dataset.commentId;
     const response = await deleteCommentRequest(articleId, commentId);
+    if (!response.ok) throw new Error('댓글 삭제 실패');
 });
 
 commentDeleteModal.addEventListener('close', () => commentDeleteModal.classList.remove('is-active'));

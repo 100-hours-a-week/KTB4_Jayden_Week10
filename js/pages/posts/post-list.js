@@ -105,7 +105,7 @@ function createArticleCard(article) {
         image.addEventListener('error', () => image.remove());
         avatar.append(image);
     }
-    author.textContent = article.nickname || `사용자 ${article.userId ?? ''}`.trim();
+    author.textContent = article.nickname;
     body.append(heading, meta);
     footer.append(avatar, author);
     if (imageSrc) link.append(media);
@@ -124,6 +124,8 @@ async function fetchArticles() {
     try {
         const appendLastArticleId = isFirstLoad ? '' : `&lastArticleId=${lastArticleId}`;
         const response = await fetchArticlesRequest(pageSize, appendLastArticleId);
+        if (!response.ok) throw new Error('게시글 목록 조회 실패');
+
         const articles = await response.json();
         const articleArray = Array.isArray(articles.data) ? articles.data : [];
 

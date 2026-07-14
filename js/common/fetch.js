@@ -3,11 +3,8 @@ import {API_BASE_URL} from '../constants/api.js';
 
 
 
-export const fetchUserProfile = authFetch(
+export const fetchUserProfile = () => authFetch(
         `${API_BASE_URL}/users/me`,
-        {
-            method: 'GET'
-        }
     );
 
 export const loginRequest = (email, password) => fetch(
@@ -31,7 +28,7 @@ export const signupRequest = (signupData) => fetch(
         }
     );
 
-export const fetchUserRequest = authFetch(`${API_BASE_URL}/users/me`);
+export const fetchUserRequest = () => authFetch(`${API_BASE_URL}/users/me`);
 
 export const updateUserInfoRequest = (nickname, url) => authFetch(
     `${API_BASE_URL}/users/me`,
@@ -51,7 +48,7 @@ export const updatePasswordRequest = (password) => authFetch(
         }
     );
 
-export const deleteUserRequest = authFetch(
+export const deleteUserRequest = () => authFetch(
     `${API_BASE_URL}/users/me`,
         {
             method : 'DELETE'

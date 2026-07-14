@@ -1,16 +1,15 @@
-import { fetchUserProfile} from './fetch.js';
+import { fetchUserProfile } from './fetch.js';
+import {DEFAULT_PROFILE_IMAGE} from '../constants/default.js'
 
 const profileImage = document.querySelector('[data-profile-image]');
 const profileButton = document.querySelector('[data-account-menu-trigger]');
 const userMenuList = document.getElementById('account-menu-list');
 
-const DEFAULT_PROFILE_IMAGE = "../../assets/images/default-profile.svg"
-
 
 async function loadUserProfile() {
     if (!profileImage) return;
 
-    const response = await fetchUserProfile;
+    const response = await fetchUserProfile();
 
     if (!response.ok) throw new Error('사용자 정보 조회 실패');
 

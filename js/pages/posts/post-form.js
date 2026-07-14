@@ -109,10 +109,8 @@ postCreateForm.addEventListener('submit', async (event) => {
     updateFormState();
 
     const articleId = result.data.articleId;
-    console.log(`게시글 작성 완료: ${articleId}`);
-    window.setTimeout(() => {
-        window.location.assign(`./detail.html?id=${encodeURIComponent(articleId)}`);
-    }, 500);
+    
+    window.location.assign(`./detail.html?id=${encodeURIComponent(articleId)}`);
 });
 
 window.addEventListener('beforeunload', () => {

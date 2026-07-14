@@ -86,6 +86,9 @@ passwordUpdateForm.addEventListener('submit', async (event) => {
 
     const result = await updatePasswordRequest(password);
 
+    if (!result.ok) throw new Error('비밀번호 수정 실패');
+    
+
     window.setTimeout(() => {
         updateButtonState();
         toast.hidden = false;
