@@ -1,0 +1,7 @@
+.comments-section { margin-top: var(--space-6); }
+.comments-section__title { margin: 0; font-size: var(--font-section-title); }
+.comments-state-message { padding: var(--space-6); background: var(--color-surface); border: 1px solid var(--color-line); border-radius: var(--radius-lg); }
+.comments-state-message--error { display: flex; align-items: center; justify-content: center; gap: var(--space-3); }
+.comment-list > .comment-item:not(.is-reply) { padding: var(--space-6); background: var(--color-surface); border: 1px solid var(--color-line); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+.comments-loading-more { display: flex; }
+.comment-edit-form[class*="comment-edit-form--reply-"] { display: grid; }

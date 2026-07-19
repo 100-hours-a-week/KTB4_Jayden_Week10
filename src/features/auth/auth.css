@@ -1,0 +1,20 @@
+.auth-status {
+  display: grid;
+  place-content: center;
+  gap: var(--space-4);
+  min-height: 100vh;
+  padding: var(--space-6);
+  text-align: center;
+}
+
+.user-menu__avatar { display: block; width: 100%; height: 100%; }
+.user-menu__avatar img { width: 100%; height: 100%; object-fit: cover; }
+.user-menu__list button {
+  width: 100%; padding: 0.7rem var(--space-3); color: var(--color-subtle);
+  background: transparent; border: 0; border-radius: calc(var(--radius-md) - 0.125rem);
+  font-size: var(--font-helper); text-align: left; cursor: pointer;
+}
+.user-menu__list button:hover,
+.user-menu__list button:focus-visible { color: var(--color-text); background: var(--color-menu-hover); }
+.user-menu__list button:disabled { cursor: wait; opacity: 0.65; }
+.user-menu__error { padding: var(--space-2) var(--space-3); color: var(--color-danger); font-size: var(--font-helper); line-height: 1.4; }

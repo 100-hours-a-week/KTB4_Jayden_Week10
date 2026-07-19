@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { clearAccessToken, getAccessToken, setAccessToken } from '../../features/auth/tokenStore.js';
+import { clearAccessToken, getAccessToken, setAccessToken } from '../session/tokenStore.js';
 import { ApiError } from './ApiError.js';
 import { request, setRefreshHandler, setUnauthorizedHandler } from './httpClient.js';
 
@@ -16,6 +16,14 @@ describe('httpClient', () => {
   it('204 응답을 JSON parsing 없이 처리한다', async () => {
     fetch.mockResolvedValue(new Response(null, { status: 204 }));
     await expect(request('/empty', { auth: false })).resolves.toBeNull();
+  });
+
+  it('요청자가 필요로 하면 성공 응답 status를 payload와 함께 반환한다', async () => {
+    fetch.mockResolvedValue(new Response(null, { status: 201 }));
+    await expect(request('/created', { auth: false, includeResponseMeta: true })).resolves.toEqual({
+      payload: null,
+      status: 201,
+    });
   });
 
   it('JSON이 아닌 오류도 ApiError로 변환한다', async () => {
@@ -45,6 +53,25 @@ describe('httpClient', () => {
 
     removeRefresh();
     removeUnauthorized();
+  });
+
+  it('요청 이후 token이 교체된 상태에서 늦은 401이 오면 refresh 없이 재시도한다', async () => {
+    setAccessToken('expired');
+    let resolveExpiredRequest;
+    fetch
+      .mockReturnValueOnce(new Promise((resolve) => { resolveExpiredRequest = resolve; }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: { ok: true } }), { status: 200 }));
+    const refresh = vi.fn();
+    const removeRefresh = setRefreshHandler(refresh);
+
+    const pendingRequest = request('/protected');
+    setAccessToken('renewed-by-another-request');
+    resolveExpiredRequest(new Response('{}', { status: 401 }));
+
+    await expect(pendingRequest).resolves.toEqual({ data: { ok: true } });
+    expect(refresh).not.toHaveBeenCalled();
+    expect(fetch.mock.calls[1][1].headers.get('Authorization')).toBe('Bearer renewed-by-another-request');
+    removeRefresh();
   });
 
   it('재시도도 401이면 인증 만료 handler를 한 번 호출한다', async () => {

@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import { getCurrentUser } from '../user/userService.js';
 import { isUnauthorizedError } from '../../shared/api/ApiError.js';
 import { setRefreshHandler, setUnauthorizedHandler } from '../../shared/api/httpClient.js';
-import { clearAccessToken } from './tokenStore.js';
+import { clearAccessToken } from '../../shared/session/tokenStore.js';
 import { login as loginRequest, logout as logoutRequest, refreshAccessToken } from './authService.js';
 import { AUTH_STATUS } from './authConstants.js';
 
@@ -14,13 +14,15 @@ export function AuthProvider({ children }) {
   const [status, setStatus] = useState(AUTH_STATUS.CHECKING);
   const [user, setUser] = useState(null);
   const [bootstrapError, setBootstrapError] = useState(null);
+  const [suppressReturnTo, setSuppressReturnTo] = useState(false);
   const mountedRef = useRef(false);
 
-  const markAnonymous = useCallback(() => {
+  const markAnonymous = useCallback(({ suppressReturnTo: shouldSuppressReturnTo = false } = {}) => {
     clearAccessToken();
     if (!mountedRef.current) return;
     setUser(null);
     setBootstrapError(null);
+    setSuppressReturnTo(shouldSuppressReturnTo);
     setStatus(AUTH_STATUS.ANONYMOUS);
   }, []);
 
@@ -39,6 +41,7 @@ export function AuthProvider({ children }) {
 
         if (mountedRef.current) {
           setUser(currentUser);
+          setSuppressReturnTo(false);
           setStatus(AUTH_STATUS.AUTHENTICATED);
         }
         return;
@@ -74,6 +77,7 @@ export function AuthProvider({ children }) {
       if (!currentUser) throw new Error('사용자 정보 응답이 비어 있습니다.');
       setUser(currentUser);
       setBootstrapError(null);
+      setSuppressReturnTo(false);
       setStatus(AUTH_STATUS.AUTHENTICATED);
       return currentUser;
     } catch (error) {
@@ -88,6 +92,7 @@ export function AuthProvider({ children }) {
     await logoutRequest();
     setUser(null);
     setBootstrapError(null);
+    setSuppressReturnTo(true);
     setStatus(AUTH_STATUS.ANONYMOUS);
   }, []);
 
@@ -98,13 +103,20 @@ export function AuthProvider({ children }) {
     return currentUser;
   }, []);
 
+  const applyCurrentUser = useCallback((currentUser) => {
+    if (!currentUser) return;
+    setUser(currentUser);
+  }, []);
+
   const value = {
     status,
     user,
     login,
     logout,
     refreshUser,
+    applyCurrentUser,
     markAnonymous,
+    suppressReturnTo,
     bootstrapError,
     retryBootstrap: bootstrap,
   };

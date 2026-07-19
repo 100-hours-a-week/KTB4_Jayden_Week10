@@ -1,5 +1,5 @@
 import { request } from '../../shared/api/httpClient.js';
-import { clearAccessToken, setAccessToken } from './tokenStore.js';
+import { clearAccessToken, setAccessToken } from '../../shared/session/tokenStore.js';
 
 let refreshPromise = null;
 
@@ -39,7 +39,11 @@ export function refreshAccessToken() {
 }
 
 export async function logout() {
-  const response = await request('/auth/logout', { method: 'POST' });
+  const response = await request('/auth/logout', {
+    method: 'POST',
+    auth: false,
+    retryOn401: false,
+  });
   clearAccessToken();
   return response;
 }

@@ -4,7 +4,11 @@ import { AuthLayout } from '../layouts/AuthLayout.jsx';
 import { LoginPage } from '../pages/LoginPage.jsx';
 import { NotFoundPage } from '../pages/NotFoundPage.jsx';
 import { PostListPage } from '../pages/PostListPage.jsx';
-import { RoutePlaceholderPage } from '../pages/RoutePlaceholderPage.jsx';
+import { PostDetailPage } from '../pages/PostDetailPage.jsx';
+import { PostCreatePage } from '../pages/PostCreatePage.jsx';
+import { PostEditPage } from '../pages/PostEditPage.jsx';
+import { ProfileEditPage } from '../pages/ProfileEditPage.jsx';
+import { PasswordEditPage } from '../pages/PasswordEditPage.jsx';
 import { SignupPage } from '../pages/SignupPage.jsx';
 import { ProtectedRoute } from './routes/ProtectedRoute.jsx';
 import { PublicOnlyRoute } from './routes/PublicOnlyRoute.jsx';
@@ -31,11 +35,11 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
           { path: '/posts', element: <PostListPage /> },
-          { path: '/posts/new', element: <RoutePlaceholderPage /> },
-          { path: '/posts/:articleId', element: <RoutePlaceholderPage /> },
-          { path: '/posts/:articleId/edit', element: <RoutePlaceholderPage /> },
-          { path: '/settings/profile', element: <RoutePlaceholderPage /> },
-          { path: '/settings/password', element: <RoutePlaceholderPage /> },
+          { path: '/posts/new', element: <PostCreatePage /> },
+          { path: '/posts/:articleId', element: <PostDetailPage /> },
+          { path: '/posts/:articleId/edit', element: <PostEditPage /> },
+          { path: '/settings/profile', element: <ProfileEditPage /> },
+          { path: '/settings/password', element: <PasswordEditPage /> },
           { path: '*', element: <NotFoundPage /> },
         ],
       },

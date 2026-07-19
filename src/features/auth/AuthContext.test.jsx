@@ -4,7 +4,7 @@ import { setupServer } from 'msw/node';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AuthProvider, useAuth } from './AuthContext.jsx';
-import { clearAccessToken, getAccessToken } from './tokenStore.js';
+import { clearAccessToken, getAccessToken } from '../../shared/session/tokenStore.js';
 
 const server = setupServer();
 
@@ -32,7 +32,7 @@ describe('AuthProvider bootstrap', () => {
   it('refresh와 사용자 조회 성공 후 authenticated로 전환한다', async () => {
     server.use(
       http.post('http://localhost:8080/auth/token/refresh', () => HttpResponse.json({ data: { accessToken: 'token' } })),
-      http.get('http://localhost:8080/users/me', () => HttpResponse.json({ data: { nickname: '하비' } })),
+      http.get('http://localhost:8080/users/me', () => HttpResponse.json({ data: { userId: 1, nickname: '하비' } })),
     );
 
     render(<AuthProvider><AuthProbe /></AuthProvider>);
@@ -160,26 +160,23 @@ describe('AuthProvider bootstrap', () => {
     expect(requestCount).toBe(2);
   });
 
-  it('logout 중 refresh 5xx가 발생하면 authenticated 상태와 token을 유지한다', async () => {
+  it('logout 실패 시 추가 refresh 없이 authenticated 상태와 token을 유지한다', async () => {
     const user = userEvent.setup();
     let refreshCount = 0;
     server.use(
       http.post('http://localhost:8080/auth/token/refresh', () => {
         refreshCount += 1;
-        if (refreshCount === 1) {
-          return HttpResponse.json({ data: { accessToken: 'bootstrap-token' } });
-        }
-        return HttpResponse.json({ message: 'unavailable' }, { status: 503 });
+        return HttpResponse.json({ data: { accessToken: 'bootstrap-token' } });
       }),
-      http.get('http://localhost:8080/users/me', () => HttpResponse.json({ data: { nickname: '하비' } })),
-      http.post('http://localhost:8080/auth/logout', () => HttpResponse.json({ message: 'expired' }, { status: 401 })),
+      http.get('http://localhost:8080/users/me', () => HttpResponse.json({ data: { userId: 1, nickname: '하비' } })),
+      http.post('http://localhost:8080/auth/logout', () => HttpResponse.json({ message: 'unavailable' }, { status: 503 })),
     );
 
     render(<AuthProvider><AuthProbe /></AuthProvider>);
     expect(await screen.findByText('authenticated')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'logout' }));
-    await waitFor(() => expect(refreshCount).toBe(2));
+    await waitFor(() => expect(refreshCount).toBe(1));
 
     expect(screen.getByTestId('status')).toHaveTextContent('authenticated');
     expect(getAccessToken()).toBe('bootstrap-token');

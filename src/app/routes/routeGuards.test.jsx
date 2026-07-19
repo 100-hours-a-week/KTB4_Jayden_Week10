@@ -11,12 +11,13 @@ function LocationProbe() {
   return <span>{`${location.pathname}${location.search}${location.hash}`}</span>;
 }
 
-function renderWithStatus(status, initialEntry, routeElement) {
+function renderWithStatus(status, initialEntry, routeElement, { suppressReturnTo = false } = {}) {
   const authValue = {
     status,
     user: null,
     bootstrapError: null,
     retryBootstrap: vi.fn(),
+    suppressReturnTo,
   };
 
   return render(
@@ -26,6 +27,7 @@ function renderWithStatus(status, initialEntry, routeElement) {
           {routeElement}
           <Route path="/login" element={<LocationProbe />} />
           <Route path="/posts" element={<LocationProbe />} />
+          <Route path="/posts/:id" element={<LocationProbe />} />
         </Routes>
       </MemoryRouter>
     </AuthContext.Provider>,
@@ -51,5 +53,26 @@ describe('route guards', () => {
     );
 
     expect(screen.getByText('/posts')).toBeInTheDocument();
+  });
+
+  it('로그인 중 authenticated로 전환되면 안전한 returnTo를 우선한다', () => {
+    renderWithStatus(
+      AUTH_STATUS.AUTHENTICATED,
+      '/login?returnTo=%2Fposts%2F10%3Ftab%3Dcomments%23reply',
+      <Route element={<PublicOnlyRoute />}><Route path="/login" element={<p>login</p>} /></Route>,
+    );
+
+    expect(screen.getByText('/posts/10?tab=comments#reply')).toBeInTheDocument();
+  });
+
+  it('명시적 로그아웃·탈퇴는 보호 경로 returnTo를 남기지 않는다', () => {
+    renderWithStatus(
+      AUTH_STATUS.ANONYMOUS,
+      '/settings/profile',
+      <Route element={<ProtectedRoute />}><Route path="/settings/profile" element={<p>protected</p>} /></Route>,
+      { suppressReturnTo: true },
+    );
+
+    expect(screen.getByText('/login')).toBeInTheDocument();
   });
 });

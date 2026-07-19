@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const { requestMock } = vi.hoisted(() => ({ requestMock: vi.fn() }));
 vi.mock('../../shared/api/httpClient.js', () => ({ request: requestMock }));
 
-import { clearAccessToken, getAccessToken } from './tokenStore.js';
-import { refreshAccessToken } from './authService.js';
+import { clearAccessToken, getAccessToken, setAccessToken } from '../../shared/session/tokenStore.js';
+import { logout, refreshAccessToken } from './authService.js';
 
 beforeEach(() => {
   requestMock.mockReset();
@@ -23,5 +23,24 @@ describe('refreshAccessToken', () => {
     await expect(Promise.all([first, second])).resolves.toEqual(['renewed-token', 'renewed-token']);
     expect(requestMock).toHaveBeenCalledTimes(1);
     expect(getAccessToken()).toBe('renewed-token');
+  });
+});
+
+describe('logout', () => {
+  it('access token 없이 요청하고 성공한 경우에만 메모리 token을 제거한다', async () => {
+    setAccessToken('current-token');
+    requestMock.mockResolvedValue({ message: 'logout_success', data: null });
+    await logout();
+    expect(requestMock).toHaveBeenCalledWith('/auth/logout', {
+      method: 'POST', auth: false, retryOn401: false,
+    });
+    expect(getAccessToken()).toBeNull();
+  });
+
+  it('로그아웃 요청 실패 시 메모리 token을 유지한다', async () => {
+    setAccessToken('current-token');
+    requestMock.mockRejectedValue(new Error('network error'));
+    await expect(logout()).rejects.toThrow('network error');
+    expect(getAccessToken()).toBe('current-token');
   });
 });

@@ -1,0 +1,5 @@
+.profile-image-helper { position: absolute; right: 0; bottom: 0; left: 0; margin: 0; color: var(--color-subtle); font-size: var(--font-helper); text-align: center; }
+.profile-image-helper[role="alert"] { color: var(--color-danger); }
+.profile-field-helper__message.is-visible,
+.password-field-helper__message.is-visible,
+.field-helper__message.is-visible { display: block; }

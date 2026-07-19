@@ -1,4 +1,4 @@
-import { clearAccessToken, getAccessToken } from '../../features/auth/tokenStore.js';
+import { clearAccessToken, getAccessToken } from '../session/tokenStore.js';
 import { ApiError } from './ApiError.js';
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
@@ -64,6 +64,7 @@ export async function request(
     retryOn401 = true,
     credentials = 'include',
     notifyUnauthorized = true,
+    includeResponseMeta = false,
   } = {},
 ) {
   const requestHeaders = new Headers(headers);
@@ -86,11 +87,12 @@ export async function request(
   });
   const payload = await parseResponse(response);
 
-  if (response.ok) return payload;
+  if (response.ok) return includeResponseMeta ? { payload, status: response.status } : payload;
 
   if (response.status === 401 && auth && retryOn401 && refreshHandler) {
     try {
-      await refreshHandler();
+      const currentToken = getAccessToken();
+      if (!token || token === currentToken) await refreshHandler();
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {
         clearAccessToken();
@@ -109,6 +111,7 @@ export async function request(
         retryOn401: false,
         credentials,
         notifyUnauthorized: false,
+        includeResponseMeta,
       });
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {

@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="하비루프 취미 이야기 상세" />
+    <title>이야기 상세 | 하비루프</title>
+    <link rel="stylesheet" href="../../css/reset.css" />
+    <link rel="stylesheet" href="../../css/variables.css" />
+    <link rel="stylesheet" href="../../css/base.css" />
+    <link rel="stylesheet" href="../../css/components/button.css" />
+    <link rel="stylesheet" href="../../css/components/header.css" />
+    <link rel="stylesheet" href="../../css/components/modal.css" />
+    <link rel="stylesheet" href="../../css/pages/post-detail.css" />
+  </head>
+  <body class="post-detail-page" data-api-base="" data-article-id="1">
+    <a class="skip-link" href="#article-detail-main">본문으로 건너뛰기</a>
+    <header class="site-header">
+      <nav class="site-header__inner" aria-label="주요 메뉴">
+        <a class="detail-back" href="./list.html" aria-label="게시글 목록으로 돌아가기"><span aria-hidden="true">‹</span></a>
+        <a class="site-logo" href="../../index.html" aria-label="하비루프 홈">하비루프</a>
+        <div class="user-menu" data-account-menu>
+          <button class="user-menu__trigger" type="button" aria-label="프로필 메뉴 열기" aria-expanded="false" aria-controls="account-menu-list" data-account-menu-trigger>
+            <img src="../../assets/images/default-profile.svg" alt="" data-profile-image />
+          </button>
+          <div id="account-menu-list" class="user-menu__list" data-account-menu-list hidden>
+            <a href="../user/profile-edit.html">회원정보수정</a>
+            <a href="../user/password-edit.html">비밀번호수정</a>
+            <a logout-a>로그아웃</a>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main id="article-detail-main" class="article-detail-main">
+      <!-- 상태: is-loading, is-error, is-not-found, has-image, has-no-image -->
+      <div class="article-view has-image" data-article-view>
+        <div class="article-skeleton" aria-label="게시글을 불러오는 중"><span></span><span></span><span></span></div>
+        <section class="article-state-message article-state-message--error" data-article-error hidden><h1>게시글을 불러오지 못했어요.</h1><button class="button button--secondary" type="button" data-article-retry>다시 시도</button><a class="button button--primary" href="./list.html">목록으로 돌아가기</a></section>
+        <section class="article-state-message article-state-message--not-found" data-article-not-found hidden><h1>게시글을 찾을 수 없어요.</h1><a class="button button--primary" href="./list.html">목록으로 돌아가기</a></section>
+
+        <article class="article-detail" data-article-content>
+          <header class="article-detail__header">
+            <div>
+              <h1 data-article-title>제목 1</h1>
+              <div class="article-detail__author">
+                <span class="avatar" aria-hidden="true" data-article-avatar></span>
+                <strong data-article-author>더미 작성자 1</strong>
+                <time datetime="2021-01-01T00:00:00" data-article-created-at>2021-01-01 00:00:00</time>
+                <span class="article-detail__edited" data-article-edited hidden>(수정됨)</span>
+              </div>
+            </div>
+            <div class="article-detail__actions"><button class="button button--outline" article-update-button>수정</button><button class="button button--outline" type="button" data-post-delete-open>삭제</button></div>
+          </header>
+
+          <section class="article-gallery" aria-label="게시글 이미지" data-gallery>
+            <button class="gallery-arrow gallery-arrow--previous" type="button" aria-label="이전 이미지" data-gallery-previous>‹</button>
+            <figure class="gallery-slide is-active" data-gallery-slide>
+              <img class="gallery-image" src="../../assets/images/empty-posts.svg" alt="게시글 이미지 1" data-gallery-image data-fallback-src="../../assets/images/empty-posts.svg" />
+            </figure>
+            <figure class="gallery-slide" data-gallery-slide>
+              <img class="gallery-image" src="../../assets/images/empty-posts.svg" alt="게시글 이미지 2" data-gallery-image data-fallback-src="../../assets/images/empty-posts.svg" />
+            </figure>
+            <button class="gallery-arrow gallery-arrow--next" type="button" aria-label="다음 이미지" data-gallery-next>›</button>
+          </section>
+
+          <div class="article-detail__body" data-article-body>
+            <p>무엇을 얘기할까요? 아무말이라면, 삶은 항상 놀라운 모험이라고 생각합니다. 우리는 매일 새로운 경험을 하고 배우며 성장합니다. 때로는 어려움과 도전이 있지만, 그것들이 우리를 더 강하고 지혜롭게 만듭니다.</p>
+            <p>자연도 아름다운 이야기입니다. 우리 주변의 자연은 끝없는 아름다움과 신비로움을 담고 있습니다. 산, 바다, 숲, 하늘 등 모든 것이 우리를 놀라게 만들고 감동시킵니다.</p>
+            <p>마지막으로, 지식을 향한 탐구는 항상 흥미로운 여정입니다. 우리는 끝없는 지식의 바다에서 배우고 발견할 수 있으며, 이것이 우리를 더 깊이 이해하고 세상을 더 넓게 보게 해줍니다.</p>
+          </div>
+
+          <section class="article-stats" aria-label="게시글 통계">
+            <button class="article-stat article-stat--like" type="button" aria-pressed="false" data-like-button><strong data-like-count>123</strong><span>좋아요수</span></button>
+            <div class="article-stat"><strong data-view-count>123</strong><span>조회수</span></div>
+            <div class="article-stat"><strong data-comment-count>123</strong><span>댓글</span></div>
+          </section>
+        </article>
+
+        <!-- 상태: comments-loading-more, comments-empty, comments-error, has-replies, is-deleted -->
+        <section class="comments-section" data-comments-section aria-labelledby="comments-title">
+          <h2 id="comments-title" class="sr-only">댓글</h2>
+          <form class="comment-form comment-form-empty" data-comment-form novalidate>
+            <label class="sr-only" for="comment-input">댓글</label>
+            <textarea id="comment-input" name="comment" placeholder="댓글을 남겨주세요!" data-comment-input></textarea>
+            <div class="comment-form__footer"><span data-comment-mode>댓글 등록</span><button class="button button--primary comment-submit-button is-disabled" type="submit" disabled aria-disabled="true" data-comment-submit>댓글 등록</button></div>
+            <p class="comment-form__error" role="alert" hidden>댓글을 등록하지 못했습니다. 다시 시도해주세요.</p>
+          </form>
+
+          <div class="comments-state-message comments-state-message--error" data-comments-error hidden>댓글을 불러오지 못했습니다. <button type="button" data-comments-retry>다시 시도</button></div>
+          <p class="comments-state-message comments-state-message--empty" data-comments-empty hidden>첫 댓글을 남겨주세요.</p>
+          <ol class="comment-list" data-comment-list>
+            <!-- <li class="comment-item is-editing" data-comment-id="1"><article><header><span class="avatar" aria-hidden="true"></span><strong>더미 작성자 1</strong><time datetime="2021-01-01T00:00:00">2021-01-01 00:00:00</time><div class="comment-item__actions"><button type="button" data-comment-edit>수정</button><button type="button" data-comment-delete-open>삭제</button></div></header><p data-comment-text>댓글 내용</p><form class="comment-edit-form" data-comment-edit-form novalidate><label class="sr-only" for="comment-edit-input-1">댓글 수정</label><textarea id="comment-edit-input-1" name="commentText" data-comment-edit-input></textarea><p class="comment-edit-form__error" role="alert" data-comment-edit-error hidden>댓글을 수정하지 못했습니다. 다시 시도해주세요.</p><div class="comment-edit-form__actions"><button class="button button--secondary" type="button" data-comment-edit-cancel>취소</button><button class="button button--primary" type="submit" data-comment-edit-submit>수정 완료</button></div></form></article></li> -->
+          </ol>
+          <template id="comment-edit-form-template" data-comment-edit-template>
+            <form class="comment-edit-form" data-comment-edit-form novalidate>
+              <label class="sr-only" data-comment-edit-label>댓글 수정</label>
+              <textarea name="commentText" data-comment-edit-input></textarea>
+              <p class="comment-edit-form__error" role="alert" data-comment-edit-error hidden>댓글을 수정하지 못했습니다. 다시 시도해주세요.</p>
+              <div class="comment-edit-form__actions">
+                <button class="button button--secondary" type="button" data-comment-edit-cancel>취소</button>
+                <button class="button button--primary" type="submit" data-comment-edit-submit>수정 완료</button>
+              </div>
+            </form>
+          </template>
+          <div class="comments-loading-more" data-comments-loading-more hidden><span></span>댓글을 더 불러오는 중…</div>
+          <div data-comments-sentinel aria-hidden="true"></div>
+        </section>
+      </div>
+    </main>
+
+    <dialog class="modal detail-modal" id="post-delete-modal" aria-labelledby="post-delete-title" aria-describedby="post-delete-description"><form class="modal__content" method="dialog"><h2 id="post-delete-title">게시글을 삭제하시겠습니까?</h2><p id="post-delete-description">삭제한 내용은 복구 할 수 없습니다.</p><div class="modal__actions"><button class="button button--secondary" value="cancel">취소</button><button class="button button--primary" value="confirm" data-post-delete-confirm>확인</button></div></form></dialog>
+    <dialog class="modal detail-modal" id="comment-delete-modal" aria-labelledby="comment-delete-title" aria-describedby="comment-delete-description"><form class="modal__content" method="dialog"><h2 id="comment-delete-title">댓글을 삭제하시겠습니까?</h2><p id="comment-delete-description">삭제한 내용은 복구 할 수 없습니다.</p><div class="modal__actions"><button class="button button--secondary" value="cancel">취소</button><button class="button button--primary" value="confirm" data-comment-delete-confirm>확인</button></div></form></dialog>
+    <script type="module" src="../../js/common/account-menu.js"></script>
+    <script type="module" src="../../js/pages/posts/post-detail.js"></script>
+  </body>
+</html>

@@ -38,7 +38,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 - refresh token: 서버가 관리하는 cookie를 사용한다.
 - cookie가 필요한 요청은 `credentials: 'include'`를 사용한다.
 - 보호 API는 `Authorization: Bearer <accessToken>` header를 사용한다.
-- 로그인, 회원가입, refresh는 access token 없이 호출한다.
+- 로그인, 로그아웃, 회원가입, refresh는 access token 없이 호출한다.
 - 보호 API가 401이면 refresh 후 원 요청을 한 번만 재시도한다.
 
 ### 1.3 Content-Type
@@ -78,7 +78,12 @@ class ApiError extends Error {
 }
 ```
 
-`code`와 오류 `data` 구조는 `확정 필요`다.
+`code` 규칙:
+- UPPER_SNAKE_CASE 사용
+- HTTP 상태 코드와 별도로 관리
+- 프론트엔드 코드에서 변경되지 않는 안정적인 값으로 사용
+- 메시지 문장을 code로 사용하지 않기
+- Java 예외 클래스명을 노출하지 않기
 
 ### 1.5 취소와 중복 요청
 
@@ -101,7 +106,7 @@ class ApiError extends Error {
 | 사용자 | PATCH | `/users/me` | 필요 | 현재 코드 확인 |
 | 사용자 | PATCH | `/users/me/password` | 필요 | 현재 코드 확인 |
 | 사용자 | DELETE | `/users/me` | 필요 | 현재 코드 확인 |
-| 이미지 | POST | `/users/me/profile-image` | 상황별 확정 필요 | 현재 코드 확인 |
+| 이미지 | POST | `/users/me/profile-image` | 상황별 확정 필요 수정됨| 현재 코드 확인 |
 | 이미지 | POST | `/articles/content-image` | 필요 | 현재 코드 확인 |
 | 게시글 | GET | `/articles` | 필요 | 현재 코드 확인 |
 | 게시글 | POST | `/articles` | 필요 | 현재 코드 확인 |
@@ -174,7 +179,7 @@ response.data.accessToken
 
 `POST /auth/logout`
 
-- 인증: access token + cookie
+- 인증: refresh cookie, access token 없음
 - body: 없음
 - 성공 후 access token과 current user를 제거한다.
 - 실패하면 현재 화면과 authenticated 상태를 유지하고 오류를 표시한다.
@@ -200,7 +205,7 @@ response.data.accessToken
 ```
 
 - 현재 UI에는 비밀번호 확인 필드가 있지만 API 요청에는 포함하지 않는다.
-- 이메일/닉네임 중복 오류 code와 field 매핑은 `확정 필요`다. 빈칸으로 남겨두고 TODO 리스트에 추가한다.
+- 이메일/닉네임 중복 오류 code와 field 매핑은 409 응답, "이미 존재하는 이메일/닉네임 입니다.", 틀린 필드 출력.
 - 프로필 이미지는 필수가 아니다.
 
 ### 4.2 내 정보 조회
@@ -211,6 +216,7 @@ response.data.accessToken
 
 ```js
 {
+  userId,
   email,
   nickname,
   profileImageUrl
@@ -246,7 +252,7 @@ response.data.accessToken
 ```
 
 - password confirm은 client validation 전용이며 전송하지 않는다.
-- 변경 후 세션 유지/만료 정책은 `확정 필요`다.
+- 변경 후 다시 로그인을 요구한다.
 
 ### 4.5 회원 탈퇴
 
@@ -277,14 +283,11 @@ formData.append('profileImage', file);
 response.data.fileUrl
 ```
 
-확정 필요:
-
 - 회원가입 전에도 `/users/me/...`를 access token 없이 호출할 수 있다.
 - 로그인 후 프로필 변경에서는 access token/cookie가 필요하다.
 - 가입용과 수정용 endpoint를 분리하지 않는다.
-- 허용 MIME, 용량, 해상도 제한은 무엇인가? 아직 확정되지 않았다. 
+- 파일 당 허용 용량 10MB, 총 용량 100MB.
 
-이 항목이 확정되기 전에는 가입/프로필 변경 upload 구현을 완료로 처리하지 않는다.
 
 ### 5.2 게시글 이미지 upload
 
@@ -303,11 +306,8 @@ files.forEach((file) => formData.append('contentImages', file));
 response.data.fileUrls // string[]
 ```
 
-확정 필요:
-
-- 최대 파일 개수/크기/MIME
+- 파일 당 허용 용량 10MB, 총 용량 100MB
 - 일부 파일만 실패할 수 있는지: 일부 파일 실패하면 전체 실패다.
-- 사용되지 않은 URL의 만료 또는 삭제 정책 - 추후 업데이트.
 
 클라이언트 규칙:
 
@@ -343,6 +343,7 @@ query parameter:
   commentCount,
   articleViewCount,
   createdAt,
+  userId,
   nickname,
   profileImageUrl,
   updatedAt
@@ -393,8 +394,10 @@ response.data.articleId
   title,
   content,
   contentImageUrls,
+  userId,
   nickname,
   profileImageUrl,
+  likedByMe,
   createdAt,
   updatedAt,
   articleLikeCount,
@@ -403,7 +406,7 @@ response.data.articleId
 }
 ```
 
-- 존재하지 않는 ID의 status code를 404로 가정하지만 서버 확인이 필요하다.
+- 존재하지 않는 ID의 status code를 404 응답이 출력된다.
 
 ### 6.4 게시글 수정
 
@@ -472,10 +475,11 @@ query parameter:
   commentId,
   parentCommentId, // 최상위 댓글은 null
   commentText,
+  userId,
   nickname,
   profileImageUrl,
   createdAt,
-  deletedAt,
+  deletedAt
 }
 ```
 
@@ -520,7 +524,7 @@ query parameter:
   nickname,
   profileImageUrl,
   createdAt,
-  deletedAt,
+  deletedAt
 }
 ```
 
@@ -604,5 +608,4 @@ query parameter:
 | `src/features/comments/commentService.js` | 댓글/대댓글 조회와 CRUD |
 
 service 함수는 UI state를 변경하거나 route를 이동하지 않는다. API 요청과 응답 반환만 담당한다.
-
 
