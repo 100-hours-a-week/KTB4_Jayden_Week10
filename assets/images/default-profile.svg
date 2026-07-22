@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" role="img" aria-label="기본 프로필">
-  <circle cx="48" cy="48" r="48" fill="#EEEAFB"/>
-  <circle cx="48" cy="36" r="16" fill="#ACA0EB"/>
-  <path d="M18 89c3-19 16-29 30-29s27 10 30 29" fill="#ACA0EB"/>
+  <circle cx="48" cy="48" r="48" fill="#FFFAF2FF"/>
+  <circle cx="48" cy="36" r="16" fill="#DF7A4AFF"/>
+  <path d="M18 89c3-19 16-29 30-29s27 10 30 29" fill="#DF7A4AFF"/>
 </svg>
